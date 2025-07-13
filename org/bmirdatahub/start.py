@@ -1,0 +1,52 @@
+import typer
+
+from org.bmirdatahub import start_frontend, start_microservice
+from org.bmirdatahub.worker.StartFrontendWorker import StartFrontendWorker
+from org.bmirdatahub.worker.StartInfrastructureWorker import StartInfrastructureWorker
+from org.bmirdatahub.worker.StartMicroserviceWorker import StartMicroserviceWorker
+
+app = typer.Typer(no_args_is_help=True)
+app.add_typer(start_frontend.app, name="frontend")
+app.add_typer(start_microservice.app, name="microservice")
+
+
+@app.command("all")
+def all_all():
+    StartInfrastructureWorker.all()
+    StartMicroserviceWorker.all()
+    StartFrontendWorker.all()
+
+
+@app.command("infra")
+def infra_all():
+    StartInfrastructureWorker.all()
+
+
+@app.command("microservices")
+def microservice_all():
+    StartMicroserviceWorker.all()
+
+
+@app.command("java")
+def java_all():
+    StartMicroserviceWorker.all()
+
+
+@app.command("frontends")
+def frontend_all():
+    StartFrontendWorker.all()
+
+
+@app.command("uis")
+def ui_all():
+    StartFrontendWorker.all()
+
+
+@app.command("kk")
+def infra_kk():
+    StartInfrastructureWorker.keycloak()
+
+
+@app.command("keycloak")
+def infra_keycloak():
+    infra_kk()

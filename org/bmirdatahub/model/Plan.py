@@ -1,0 +1,56 @@
+from rich.console import Console
+
+from org.bmirdatahub.model.Repo import Repo
+from org.bmirdatahub.model.TaskType import TaskType
+from org.bmirdatahub.operator.Operator import Operator
+
+console = Console()
+
+
+class Plan:
+    def __init__(self, name: str):
+        self.name = name
+        self.tasks = []
+        self.node_id = None
+
+    def add_task(self, name: str, task_type: TaskType, repo_list: list[Repo], parameters: dict = None):
+        if parameters is None:
+            parameters = dict()
+        from org.bmirdatahub.model.PlanTask import PlanTask
+        proper_list = list(filter(None, repo_list))
+        to_expand = []
+        if len(proper_list) == 1:
+            task = PlanTask(name, task_type, proper_list[0], parameters)
+            self.tasks.append(task)
+            to_expand.append(task)
+        else:
+            for repo in proper_list:
+                task = PlanTask(name, task_type, repo, parameters)
+                self.tasks.append(task)
+                to_expand.append(task)
+        Plan.expand_tasks(to_expand)
+
+    def add_task_as_task(self, task):
+        if task is not None:
+            self.tasks.append(task)
+            Plan.expand_tasks([task])
+
+    def add_task_as_task_no_expand(self, task):
+        self.tasks.append(task)
+
+    @staticmethod
+    def expand_tasks(tasks):
+        for task in tasks:
+            Operator.expand_task(task)
+
+    def get_max_depth(self):
+        return self.get_max_depth_recursively(self, 0)
+
+    def get_max_depth_recursively(self, plan: 'Plan', depth):
+        max_depth = 0
+        for task in plan.tasks:
+            max_depth = max(max_depth, self.get_max_depth_recursively(task, depth))
+        return max_depth + 1
+
+    def set_node_id(self, node_id: int):
+        self.node_id = node_id
