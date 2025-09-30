@@ -13,7 +13,8 @@ class Server:
                  stop_port: int = None,
                  check_running: CheckRunning = None,
                  check_response: str = None,
-                 display_name=None
+                 display_name=None,
+                 health_prefix=None
                  ) -> None:
         self.name = name
         self.server_type = server_type
@@ -24,3 +25,4 @@ class Server:
         self.check_running = check_running
         self.check_response = check_response
         self.display_name = display_name
+        self.health_prefix = health_prefix

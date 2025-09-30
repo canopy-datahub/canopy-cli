@@ -84,16 +84,50 @@ class ServerWorker(Worker):
     def check_status_by_health_check(server: Server, server_status_map: dict):
         server_status_report = ServerStatusReport(server)
         port_open = ServerWorker.is_port_open('localhost', server.port)
+
         if not port_open:
             server_status_report.status = ServerStatus.NOT_RUNNING
             server_status_report.exception = "Port not open"
         else:
-            url = 'http://localhost:' + str(server.admin_port) + '/healthcheck'
+            url = f'http://localhost:{server.port}/{server.health_prefix}/actuator/health'
             try:
-                response = requests.head(url)
+                # Use GET (Actuator may not implement HEAD)
+                response = requests.get(url, headers={'Accept': 'application/json'}, timeout=3)
                 server_status_report.set_status_code(response.status_code)
+
+                if response.ok:
+                    try:
+                        payload = response.json()
+                    except ValueError:
+                        # Not JSON; treat as unhealthy
+                        server_status_report.status = ServerStatus.NOT_RUNNING
+                        server_status_report.exception = "Health endpoint returned non-JSON"
+                    else:
+                        overall = str(payload.get("status", "")).upper()
+
+                        if overall == "UP":
+                            server_status_report.status = ServerStatus.OK
+                        else:
+                            server_status_report.status = ServerStatus.NOT_RUNNING
+                            # Summarize components that aren't UP (if present)
+                            comps = payload.get("components") or {}
+                            not_up = {
+                                name: str(info.get("status", "")).upper()
+                                for name, info in comps.items()
+                                if str(info.get("status", "")).upper() not in ("UP", "UNKNOWN")
+                            }
+                            if not_up:
+                                msg = "Components not UP: " + ", ".join(f"{k}={v}" for k, v in not_up.items())
+                                server_status_report.exception = msg
+                                print(msg)
+                else:
+                    server_status_report.status = ServerStatus.NOT_RUNNING
+                    server_status_report.exception = f"Health endpoint HTTP {response.status_code}"
+
             except Exception as e:
+                print("EXCEPTION:", url, e)
                 server_status_report.add_exception(str(e))
+
         server_status_map[server.name] = server_status_report
 
     @staticmethod

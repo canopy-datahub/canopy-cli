@@ -12,15 +12,16 @@ class Servers:
     def __init__(self):
         self.map = {}
 
-    def add_microservice(self, name: str, port_offset: int, display_name=None):
+    def add_microservice(self, name: str, port_offset: int, display_name=None, health_prefix=None):
         server = Server(name,
                         server_type=ServerType.MICROSERVICE,
                         tag=ServerTag.MICROSERVICE,
-                        port=9000 + port_offset,
+                        port=8080 + port_offset,
                         admin_port=9100 + port_offset,
                         stop_port=9200 + port_offset,
                         check_running=CheckRunning.HEALTH_CHECK,
-                        display_name=display_name
+                        display_name=display_name,
+                        health_prefix=health_prefix
                         )
         self.map[name] = server
 
