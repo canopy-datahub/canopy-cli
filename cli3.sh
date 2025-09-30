@@ -3,9 +3,9 @@ DATAHUB_CLI_CWD=$PWD
 pushd $DATAHUB_HOME/datahub-cli > /dev/null
 source .venv/bin/activate;
 if [ "$1" = 'build' ] && [ "$2" = 'this' ]; then
-  python3 "$DATAHUB_HOME/datahub-cli/cli.py" "$@" --wd="DATAHUB_CLI_CWD"
+  python3 "$DATAHUB_HOME/datahub-cli/cli.py" "$@" --wd="$DATAHUB_CLI_CWD"
 elif [ "$1" = 'deploy' ] && [ "$2" = 'this' ]; then
-  python3 "$DATAHUB_HOME/datahub-cli/cli.py" "$@" --wd="DATAHUB_CLI_CWD"
+  python3 "$DATAHUB_HOME/datahub-cli/cli.py" "$@" --wd="$DATAHUB_CLI_CWD"
 else
   python3 "$DATAHUB_HOME/datahub-cli/cli.py" "$@"
 fi
