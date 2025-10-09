@@ -20,7 +20,7 @@ class ServersFactory:
 
         servers.add_infra('Postgres', 5432, check_running=CheckRunning.OPEN_PORT)
         servers.add_infra('OpenSearch-REST', 9200)
-        servers.add_infra('Keycloak', 8080)
+        servers.add_infra('Keycloak', 8180)
 
         servers.add_frontend('main', 3000)
 
