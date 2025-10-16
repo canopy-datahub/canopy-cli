@@ -12,7 +12,7 @@ class ServersFactory:
         servers = Servers()
         servers.add_microservice('download', 6, 'Download', 'api/download/v1')
         servers.add_microservice('email', 5, 'Email', 'api/email/v1')
-        servers.add_microservice('entity', 0, 'Entity', 'api/entity/v1')
+        servers.add_microservice('entity', 7, 'Entity', 'api/entity/v1')
         servers.add_microservice('report', 4, 'Report', 'api/report/v1')
         servers.add_microservice('search', 1, 'Search', 'api/search/v1')
         servers.add_microservice('submission', 3, 'Submission', 'api/submission-service/v1')
