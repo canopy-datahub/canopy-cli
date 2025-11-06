@@ -71,3 +71,10 @@ class Repos:
             if repo.is_frontend:
                 repos.append(repo)
         return repos
+
+    def get_java(self) -> [Repo]:
+        repos = []
+        for name, repo in self.map.items():
+            if repo.repo_type == RepoType.JAVA_WRAPPER or repo.repo_type == RepoType.JAVA:
+                repos.append(repo)
+        return repos

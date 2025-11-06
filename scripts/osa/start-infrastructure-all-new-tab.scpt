@@ -3,7 +3,8 @@ tell application "iTerm2"
     set newTab to (create tab with default profile)
     tell current session of newTab
       write text "cd $DATAHUB_HOME"
-      write text "startdatahubinfra"
+--      write text "startdatahubinfra"
+      write text "echo 'Please start PostgreSQL, Opensearch and Keycloak manually!'"
     end tell
   end tell
 end tell

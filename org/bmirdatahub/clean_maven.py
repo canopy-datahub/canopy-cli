@@ -13,3 +13,8 @@ def clean_all():
 @app.command("project")
 def project():
     CleanMavenWorker.project()
+
+
+@app.command("repos")
+def repos():
+    CleanMavenWorker.repos()
