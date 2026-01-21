@@ -19,7 +19,7 @@ class ReposFactory:
         # repos.add_repo(Repo("datahub-libraries", RepoType.JAVA_WRAPPER, ArtifactType.MAVEN, [V.POM_OWN, V.POM_PARENT]))
         repos.add_repo(Repo("datahub-project", RepoType.JAVA_WRAPPER, ArtifactType.MAVEN, [V.POM_OWN]))
 
-        repos.add_repo(Repo("datahub-lib-keycloak-auth", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_library=True, allow_different_version=True))
+        # repos.add_repo(Repo("datahub-lib-keycloak-auth", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_library=True, allow_different_version=True))
 
         repos.add_repo(Repo("datahub-service-download", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
         repos.add_repo(Repo("datahub-service-email", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
