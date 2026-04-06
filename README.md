@@ -1,2 +1,3 @@
 # datahub-cli
-DataHub CLI
+
+Command line interface for Canopy development and server management.
