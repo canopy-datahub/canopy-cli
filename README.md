@@ -40,3 +40,5 @@ The full set of commands and subcommands will be shown as a `pdf` file after exe
 ```bash
 cacli cheat
 ```
+
+![CANOPY CLI commands](assets/docs/canopy-cli.png?raw=true "CANOPY CLI commands")
