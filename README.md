@@ -1,4 +1,5 @@
 # datahub-cli
+
 ## About
 DataHub CLI is DataHub's command line interface used to facilitate:
 * Development
@@ -40,5 +41,3 @@ The full set of commands and subcommands will be shown as a `pdf` file after exe
 ```bash
 dhcli cheat
 ```
-
-![DATAHUB CLI commands](assets/docs/datahub-cli.png?raw=true "DATAHUB CLI commands")
