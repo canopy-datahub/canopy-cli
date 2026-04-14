@@ -278,3 +278,143 @@ class AwsWorker(Worker):
             [cmd],
             title=f"All stacks for {project}",
         )
+
+    # ---- S3 ---------------------------------------------------------------
+
+    @staticmethod
+    def s3_list():
+        """List S3 buckets matching the project name."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+
+        cmd = f"aws s3 ls | grep {project}"
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"S3 buckets matching '{project}'",
+        )
+
+    # ---- ELB --------------------------------------------------------------
+
+    @staticmethod
+    def elb_dns():
+        """Show DNS names of load balancers matching the project."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        cmd = (
+            f"aws elbv2 describe-load-balancers"
+            f" --query \"LoadBalancers[?contains(LoadBalancerName, `{project}`)].DNSName\""
+            f" --output text"
+            f" --no-cli-pager"
+            f" --profile {profile}"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"Load balancer DNS for '{project}'",
+        )
+
+    # ---- RDS --------------------------------------------------------------
+
+    @staticmethod
+    def rds_endpoint():
+        """Show the RDS endpoint for the project database."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        env = AwsWorker._get_env("CANOPY_ENV")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        cmd = (
+            f"aws rds describe-db-instances"
+            f" --query \"DBInstances[?DBInstanceIdentifier==`{project}-postgresql-{env}`].Endpoint.Address\""
+            f" --output text"
+            f" --no-cli-pager"
+            f" --profile {profile}"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"RDS endpoint for '{project}-postgresql-{env}'",
+        )
+
+    # ---- CloudWatch Logs --------------------------------------------------
+
+    @staticmethod
+    def logs_list():
+        """List CloudWatch log groups matching the project name."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        cmd = (
+            f"aws logs describe-log-groups"
+            f" --query \"logGroups[?contains(logGroupName, `{project}`)].logGroupName\""
+            f" --no-cli-pager"
+            f" --profile {profile}"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"Log groups matching '{project}'",
+        )
+
+    # ---- ECR --------------------------------------------------------------
+
+    @staticmethod
+    def ecr_list():
+        """List ECR repositories matching the project name."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        cmd = (
+            f"aws ecr describe-repositories"
+            f" --query \"repositories[?contains(repositoryName, `{project}`)].repositoryName\""
+            f" --no-cli-pager"
+            f" --profile {profile}"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"ECR repositories matching '{project}'",
+        )
+
+    # ---- OpenSearch -------------------------------------------------------
+
+    @staticmethod
+    def opensearch_endpoint():
+        """Show the OpenSearch VPC endpoint for the project."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        env = AwsWorker._get_env("CANOPY_ENV")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        domain = f"{project}-opensearch-{env}"
+
+        cmd = (
+            f"aws opensearch describe-domain"
+            f" --domain-name {domain}"
+            f" --query 'DomainStatus.Endpoints.vpc'"
+            f" --output text"
+            f" --no-cli-pager"
+            f" --profile {profile}"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"OpenSearch VPC endpoint for '{domain}'",
+        )
