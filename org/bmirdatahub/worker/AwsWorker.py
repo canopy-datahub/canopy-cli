@@ -309,7 +309,7 @@ class AwsWorker(Worker):
 
         cmd = (
             f"aws elbv2 describe-load-balancers"
-            f" --query \"LoadBalancers[?contains(LoadBalancerName, `{project}`)].DNSName\""
+            f" --query \"LoadBalancers[?contains(LoadBalancerName, \\`{project}\\`)].DNSName\""
             f" --output text"
             f" --no-cli-pager"
             f" --profile {profile}"
@@ -334,7 +334,7 @@ class AwsWorker(Worker):
 
         cmd = (
             f"aws rds describe-db-instances"
-            f" --query \"DBInstances[?DBInstanceIdentifier==`{project}-postgresql-{env}`].Endpoint.Address\""
+            f" --query \"DBInstances[?DBInstanceIdentifier==\\`{project}-postgresql-{env}\\`].Endpoint.Address\""
             f" --output text"
             f" --no-cli-pager"
             f" --profile {profile}"
@@ -358,7 +358,7 @@ class AwsWorker(Worker):
 
         cmd = (
             f"aws logs describe-log-groups"
-            f" --query \"logGroups[?contains(logGroupName, `{project}`)].logGroupName\""
+            f" --query \"logGroups[?contains(logGroupName, \\`{project}\\`)].logGroupName\""
             f" --no-cli-pager"
             f" --profile {profile}"
         )
@@ -381,7 +381,7 @@ class AwsWorker(Worker):
 
         cmd = (
             f"aws ecr describe-repositories"
-            f" --query \"repositories[?contains(repositoryName, `{project}`)].repositoryName\""
+            f" --query \"repositories[?contains(repositoryName, \\`{project}\\`)].repositoryName\""
             f" --no-cli-pager"
             f" --profile {profile}"
         )
