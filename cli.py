@@ -1,6 +1,6 @@
 import typer
 
-from org.bmirdatahub import git, server, build, deploy, clean, repo, env, start, stop, check
+from org.bmirdatahub import git, server, build, deploy, clean, repo, env, start, stop, check, aws
 from org.bmirdatahub.util.GlobalContext import GlobalContext
 from org.bmirdatahub.worker.CheatWorker import CheatWorker
 from org.bmirdatahub.worker.ServerWorker import ServerWorker
@@ -18,6 +18,7 @@ app.add_typer(env.app, name="env", help="List environment variables...")
 app.add_typer(start.app, name="start", help="Start various components...")
 app.add_typer(stop.app, name="stop", help="Stop various components...")
 app.add_typer(check.app, name="check", help="Check various artifacts...")
+app.add_typer(aws.app, name="aws", help="AWS operations...")
 
 
 @app.command("cheat", help="Open cheatsheet")
