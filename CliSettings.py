@@ -22,7 +22,7 @@ class CliSettings(object):
         Tries with an empty string for macOS/BSD-style sed and without it for GNU sed.
         """
         app_home = os.getenv('APP_HOME')
-        test_file = f"{app_home}/datahub-cli/assets/utilities/sed-test.txt"
+        test_file = f"{app_home}/canopy-cli/assets/utilities/sed-test.txt"
         with open(test_file, 'w') as f:
             f.write("test")
         try:

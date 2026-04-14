@@ -16,7 +16,7 @@ class ReposFactory:
     def build_repos():
         repos = Repos()
 
-        repos.add_repo(Repo("datahub-cli", RepoType.PYTHON, ArtifactType.NONE, [], allow_different_version=True))
+        repos.add_repo(Repo("canopy-cli", RepoType.PYTHON, ArtifactType.NONE, [], allow_different_version=True))
         repos.add_repo(Repo("datahub-cloud-replication", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
         repos.add_repo(Repo("datahub-deployment-scripts", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
         repos.add_repo(Repo("datahub-development", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))

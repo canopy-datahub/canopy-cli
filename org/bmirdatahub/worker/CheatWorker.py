@@ -13,7 +13,7 @@ class CheatWorker(Worker):
 
     @staticmethod
     def cheat():
-        path = Util.get_asset_file_path(['docs', 'datahub-cli.pdf'])
+        path = Util.get_asset_file_path(['docs', 'canopy-cli.pdf'])
         Worker.execute_generic_shell_commands([
             'open ' + path
         ],

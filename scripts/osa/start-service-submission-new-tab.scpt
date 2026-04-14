@@ -2,7 +2,7 @@ tell application "iTerm2"
   tell current window
     set newTab to (create tab with default profile)
     tell current session of newTab
-      write text "cd $DATAHUB_HOME"
+      write text "cd $CANOPY_HOME"
       write text "startdatahubsubmission"
     end tell
   end tell
