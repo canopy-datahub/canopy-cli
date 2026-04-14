@@ -85,6 +85,33 @@ def ecr_list():
     AwsWorker.ecr_list()
 
 
+# ── Sub-group: canopycli aws ecs ─────────────────────────────────────────
+ecs_app = typer.Typer(no_args_is_help=True)
+app.add_typer(ecs_app, name="ecs", help="Elastic Container Service operations...")
+
+
+@ecs_app.command("list-services", help="List ECS services in the project cluster")
+def ecs_list_services():
+    AwsWorker.ecs_list_services()
+
+
+# ── Sub-group: canopycli aws lambda ──────────────────────────────────────
+lambda_app = typer.Typer(no_args_is_help=True)
+app.add_typer(lambda_app, name="lambda", help="Lambda operations...")
+
+
+@lambda_app.command("list", help="List Lambda functions for the project")
+def lambda_list():
+    AwsWorker.lambda_list()
+
+
+@lambda_app.command("invoke", help="Invoke a Lambda function (e.g. OpenSearchRefresh)")
+def lambda_invoke(
+    function: str = typer.Argument(..., help="Function suffix (e.g. OpenSearchRefresh)"),
+):
+    AwsWorker.lambda_invoke(function)
+
+
 # ── Sub-group: canopycli aws secrets ─────────────────────────────────────
 secrets_app = typer.Typer(no_args_is_help=True)
 app.add_typer(secrets_app, name="secrets", help="Secrets Manager operations...")

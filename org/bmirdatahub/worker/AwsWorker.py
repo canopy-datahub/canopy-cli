@@ -394,6 +394,80 @@ class AwsWorker(Worker):
             title=f"ECR repositories matching '{project}'",
         )
 
+    # ---- ECS --------------------------------------------------------------
+
+    @staticmethod
+    def ecs_list_services():
+        """List ECS services in the project cluster."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        env = AwsWorker._get_env("CANOPY_ENV")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        cluster = f"{project}-Services-{env}"
+
+        cmd = (
+            f"aws ecs list-services"
+            f" --cluster {cluster}"
+            f" --no-cli-pager"
+            f" --profile {profile}"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"ECS services in cluster '{cluster}'",
+        )
+
+    # ---- Lambda -----------------------------------------------------------
+
+    @staticmethod
+    def lambda_list():
+        """List Lambda functions matching the project name."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        cmd = (
+            f"aws lambda list-functions"
+            f" --query \"Functions[?contains(FunctionName, \\`{project}\\`)].FunctionName\""
+            f" --no-cli-pager"
+            f" --profile {profile}"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"Lambda functions matching '{project}'",
+        )
+
+    @staticmethod
+    def lambda_invoke(function_suffix: str):
+        """Invoke a Lambda function and show the response inline."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        function_name = f"{project}-{function_suffix}"
+
+        cmd = (
+            f"aws lambda invoke"
+            f" --function-name {function_name}"
+            f" --payload '{{}}'"
+            f" --cli-binary-format raw-in-base64-out"
+            f" --profile {profile}"
+            f" /dev/stdout"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"Invoking '{function_name}'",
+        )
+
     # ---- Secrets Manager --------------------------------------------------
 
     @staticmethod
