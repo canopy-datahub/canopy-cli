@@ -23,7 +23,7 @@ python -m venv ./.venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-alias dhcli='source $CANOPY_HOME/canopy-cli/cli.sh'
+alias canopycli='source $CANOPY_HOME/canopy-cli/cli.sh'
 
 cli.py --help
 ```
