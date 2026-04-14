@@ -33,6 +33,9 @@ console = Console()
 # ---------------------------------------------------------------------------
 
 STACKS = {
+    "Bootstrap": {
+        "template": "modules/Bootstrap.yaml",
+    },
     "Networking": {
         "template": "modules/Networking.yaml",
     },
@@ -389,6 +392,32 @@ class AwsWorker(Worker):
         Worker.execute_generic_shell_commands(
             [cmd],
             title=f"ECR repositories matching '{project}'",
+        )
+
+    # ---- Secrets Manager --------------------------------------------------
+
+    @staticmethod
+    def secrets_describe():
+        """Describe the application secret for the project."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        env = AwsWorker._get_env("CANOPY_ENV")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        secret_id = f"{project}_application_{env}"
+
+        cmd = (
+            f"aws secretsmanager describe-secret"
+            f" --secret-id {secret_id}"
+            f" --no-cli-pager"
+            f" --profile {profile}"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"Secret '{secret_id}'",
         )
 
     # ---- OpenSearch -------------------------------------------------------

@@ -85,6 +85,16 @@ def ecr_list():
     AwsWorker.ecr_list()
 
 
+# ── Sub-group: canopycli aws secrets ─────────────────────────────────────
+secrets_app = typer.Typer(no_args_is_help=True)
+app.add_typer(secrets_app, name="secrets", help="Secrets Manager operations...")
+
+
+@secrets_app.command("describe", help="Describe the application secret for the project")
+def secrets_describe():
+    AwsWorker.secrets_describe()
+
+
 # ── Sub-group: canopycli aws opensearch ──────────────────────────────────
 opensearch_app = typer.Typer(no_args_is_help=True)
 app.add_typer(opensearch_app, name="opensearch", help="OpenSearch operations...")
