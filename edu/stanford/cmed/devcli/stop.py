@@ -1,0 +1,52 @@
+import typer
+
+from edu.stanford.cmed.devcli import stop_microservice, stop_frontend
+from edu.stanford.cmed.devcli.worker.StopFrontendWorker import StopFrontendWorker
+from edu.stanford.cmed.devcli.worker.StopInfrastructureWorker import StopInfrastructureWorker
+from edu.stanford.cmed.devcli.worker.StopMicroserviceWorker import StopMicroserviceWorker
+
+app = typer.Typer(no_args_is_help=True)
+app.add_typer(stop_frontend.app, name="frontend")
+app.add_typer(stop_microservice.app, name="microservice")
+
+
+@app.command("all")
+def all_all():
+    StopFrontendWorker.all()
+    StopMicroserviceWorker.all()
+    StopInfrastructureWorker.all()
+
+
+@app.command("infra")
+def infra_all():
+    StopInfrastructureWorker.all()
+
+
+@app.command("microservices")
+def microservice_all():
+    StopMicroserviceWorker.all()
+
+
+@app.command("java")
+def java_all():
+    StopMicroserviceWorker.all()
+
+
+@app.command("frontends")
+def frontend_all():
+    StopFrontendWorker.all()
+
+
+@app.command("uis")
+def ui_all():
+    StopFrontendWorker.all()
+
+
+@app.command("kk")
+def infra_kk():
+    StopInfrastructureWorker.keycloak()
+
+
+@app.command("keycloak")
+def infra_keycloak():
+    infra_kk()

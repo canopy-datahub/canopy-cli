@@ -3,7 +3,7 @@ import platform
 import subprocess
 from rich.console import Console
 
-from org.bmirdatahub.util.Const import Const
+from edu.stanford.cmed.devcli.util.Const import Const
 
 console = Console()
 
