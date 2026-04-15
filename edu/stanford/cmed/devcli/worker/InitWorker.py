@@ -76,12 +76,13 @@ class InitWorker(Worker):
                 ))
             return
 
-        # If set-canopy-env.sh was copied, replace the -user.json fragment with the actual username
-        if 'set-canopy-env' in missing and 'aws-parameters' in missing:
+        # If set-canopy-env.sh was copied, personalize it for the current user
+        if 'set-canopy-env' in missing:
             env_file = target_files['set-canopy-env']['target']
             content = Util.read_file(env_file)
             if content:
                 content = content.replace('-user.json', f'-{user}.json')
+                content = content.replace('AWS_PROFILE=canopy-dev', f'AWS_PROFILE=canopy-{user}-dev')
                 Util.write_file(env_file, content)
 
         copied_msg = "\n".join([f"  → {path}" for _, path in copied])
