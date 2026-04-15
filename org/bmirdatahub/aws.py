@@ -85,6 +85,16 @@ def ecr_list():
     AwsWorker.ecr_list()
 
 
+# ── Sub-group: canopycli aws ec2 ─────────────────────────────────────────
+ec2_app = typer.Typer(no_args_is_help=True)
+app.add_typer(ec2_app, name="ec2", help="EC2 operations...")
+
+
+@ec2_app.command("allocate-eip", help="Allocate an Elastic IP for SFTP")
+def ec2_allocate_eip():
+    AwsWorker.ec2_allocate_eip()
+
+
 # ── Sub-group: canopycli aws ecs ─────────────────────────────────────────
 ecs_app = typer.Typer(no_args_is_help=True)
 app.add_typer(ecs_app, name="ecs", help="Elastic Container Service operations...")

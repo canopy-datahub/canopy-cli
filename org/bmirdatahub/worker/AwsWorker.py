@@ -394,6 +394,40 @@ class AwsWorker(Worker):
             title=f"ECR repositories matching '{project}'",
         )
 
+    # ---- EC2 --------------------------------------------------------------
+
+    @staticmethod
+    def ec2_allocate_eip():
+        """Allocate an Elastic IP for SFTP."""
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        env = AwsWorker._get_env("CANOPY_ENV")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        tag_spec = (
+            f"ResourceType=elastic-ip,Tags="
+            f"[{{Key=Name,Value={project}-sftp-{env}}},"
+            f"{{Key=projectname,Value={project}}},"
+            f"{{Key=environment,Value={env}}}]"
+        )
+
+        cmd = (
+            f"aws ec2 allocate-address"
+            f" --domain vpc"
+            f" --profile {profile}"
+            f" --tag-specifications '{tag_spec}'"
+        )
+
+        console.print("[yellow]Note the AllocationId from the output (format: eipalloc-xxxxxxxx)[/yellow]")
+        console.print()
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"Allocate Elastic IP for '{project}-sftp-{env}'",
+        )
+
     # ---- ECS --------------------------------------------------------------
 
     @staticmethod
