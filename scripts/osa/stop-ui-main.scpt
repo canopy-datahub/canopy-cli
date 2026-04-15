@@ -1,7 +1,7 @@
 tell application "iTerm2"
   tell current window
       tell current session
-          write text "kill $(cat ~/.datahub/pid-ui-main.txt)"
+          write text "kill $(cat ~/.canopy-datahub/pid-ui-main.txt)"
       end tell
   end tell
 end tell

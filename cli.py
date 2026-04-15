@@ -2,8 +2,8 @@ import typer
 
 from edu.stanford.cmed.devcli import repo
 from edu.stanford.cmed.devcli import start, stop, env, git, build, check, aws, clean, server
-from edu.stanford.cmed.devcli import GlobalContext
-from edu.stanford.cmed.devcli import CheatWorker
+from edu.stanford.cmed.devcli.util.GlobalContext import GlobalContext
+from edu.stanford.cmed.devcli.worker.CheatWorker import CheatWorker
 from edu.stanford.cmed.devcli.worker.ServerWorker import ServerWorker
 
 GlobalContext()

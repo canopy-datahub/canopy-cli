@@ -17,16 +17,12 @@ class ReposFactory:
         repos = Repos()
 
         repos.add_repo(Repo("canopy-cli", RepoType.PYTHON, ArtifactType.NONE, [], allow_different_version=True))
-        repos.add_repo(Repo("datahub-cloud-replication", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
-        repos.add_repo(Repo("datahub-deployment-scripts", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
-        repos.add_repo(Repo("datahub-development", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
-        repos.add_repo(Repo("datahub-docs", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
+        repos.add_repo(Repo("canopy-cloud-replication", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
+        repos.add_repo(Repo("canopy-deployment-scripts", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
+        repos.add_repo(Repo("canopy-development", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
+        repos.add_repo(Repo("canopy-docs", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
 
-        # repos.add_repo(Repo("datahub-parent", RepoType.JAVA_WRAPPER, ArtifactType.MAVEN, [V.POM_OWN, V.POM_PROPERTIES]))
-        # repos.add_repo(Repo("datahub-libraries", RepoType.JAVA_WRAPPER, ArtifactType.MAVEN, [V.POM_OWN, V.POM_PARENT]))
         repos.add_repo(Repo("datahub-project", RepoType.JAVA_WRAPPER, ArtifactType.MAVEN, [V.POM_OWN]))
-
-        # repos.add_repo(Repo("datahub-lib-keycloak-auth", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_library=True, allow_different_version=True))
 
         repos.add_repo(Repo("datahub-service-download", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
         repos.add_repo(Repo("datahub-service-email", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))

@@ -1,11 +1,11 @@
 class Const:
     APP_HOME = 'CANOPY_HOME'
-    APP_HOST = 'DATAHUB_HOST'
-    APP_NAME = 'DATAHUB'
-    APP_ENV_PREFIX = 'DATAHUB_'
-    COMMAND_NAME = 'dhcli'
-    APP_SETTING_HOME = '~/.datahub/'
-    GIT_BASE = "https://github.com/bmir-datahub/"
+    APP_HOST = 'CANOPY_HOST'
+    APP_NAME = 'CANOPY'
+    APP_ENV_PREFIX = 'CANOPY_'
+    COMMAND_NAME = 'canopycli'
+    APP_SETTING_HOME = '~/.canopy-datahub/'
+    GIT_BASE = "https://github.com/canopy-datahub/"
 
     FILE_PACKAGE_JSON = "package.json"
     FILE_PACKAGE_LOCK_JSON = "package-lock.json"
