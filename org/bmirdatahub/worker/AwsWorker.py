@@ -394,6 +394,30 @@ class AwsWorker(Worker):
             title=f"ECR repositories matching '{project}'",
         )
 
+    # ---- Transfer Family --------------------------------------------------
+
+    @staticmethod
+    def transfer_endpoint():
+        """Show the SFTP endpoint for the Transfer Family server."""
+        if not AwsWorker._check_env():
+            return
+
+        profile = AwsWorker._get_env("AWS_PROFILE")
+        region = AwsWorker._get_env("AWS_REGION")
+
+        cmd = (
+            f"SERVER_ID=$(aws transfer list-servers"
+            f" --profile {profile}"
+            f" --query 'Servers[0].ServerId'"
+            f" --output text)"
+            f" && echo \"SFTP Endpoint: ${{SERVER_ID}}.server.transfer.{region}.amazonaws.com\""
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title="SFTP Transfer Family endpoint",
+        )
+
     # ---- EC2 --------------------------------------------------------------
 
     @staticmethod

@@ -85,6 +85,16 @@ def ecr_list():
     AwsWorker.ecr_list()
 
 
+# ── Sub-group: canopycli aws transfer ────────────────────────────────────
+transfer_app = typer.Typer(no_args_is_help=True)
+app.add_typer(transfer_app, name="transfer", help="Transfer Family operations...")
+
+
+@transfer_app.command("endpoint", help="Show the SFTP Transfer Family endpoint")
+def transfer_endpoint():
+    AwsWorker.transfer_endpoint()
+
+
 # ── Sub-group: canopycli aws ec2 ─────────────────────────────────────────
 ec2_app = typer.Typer(no_args_is_help=True)
 app.add_typer(ec2_app, name="ec2", help="EC2 operations...")
