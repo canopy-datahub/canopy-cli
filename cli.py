@@ -1,9 +1,10 @@
 import typer
 
-from org.bmirdatahub import git, server, build, deploy, clean, repo, env, start, stop, check, aws
-from org.bmirdatahub.util.GlobalContext import GlobalContext
-from org.bmirdatahub.worker.CheatWorker import CheatWorker
-from org.bmirdatahub.worker.ServerWorker import ServerWorker
+from edu.stanford.cmed.devcli import repo
+from edu.stanford.cmed.devcli import start, stop, env, git, build, check, aws, clean, server
+from edu.stanford.cmed.devcli import GlobalContext
+from edu.stanford.cmed.devcli import CheatWorker
+from edu.stanford.cmed.devcli.worker.ServerWorker import ServerWorker
 
 GlobalContext()
 
