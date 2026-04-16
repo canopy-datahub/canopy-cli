@@ -15,7 +15,7 @@ class ServersFactory:
         servers.add_microservice('entity', 7, 'Entity', 'api/entity/v1')
         servers.add_microservice('report', 4, 'Report', 'api/report/v1')
         servers.add_microservice('search', 1, 'Search', 'api/search/v1')
-        servers.add_microservice('submission', 3, 'Submission', 'api/submission-service/v1')
+        servers.add_microservice('submission', 3, 'Submission', 'api/submission/v1')
         servers.add_microservice('user', 2,'User', 'api/user/v1')
 
         servers.add_infra('Postgres', 5432, check_running=CheckRunning.OPEN_PORT)
