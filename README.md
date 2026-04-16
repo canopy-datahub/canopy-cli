@@ -22,13 +22,18 @@ cd canopy-cli
 # checkout the develop branch for the latest features
 git checkout develop
 
+# create venv
 python -m venv ./.venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
+# create an alias
 alias canopycli='source $CANOPY_HOME/canopy-cli/cli.sh'
 
-cli.py --help
+# test it
+canopycli
+# or
+python cli.py
 ```
 
 ## Available commands
