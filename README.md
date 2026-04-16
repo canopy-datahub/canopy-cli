@@ -13,7 +13,7 @@ This is why we are setting `CANOPY_HOME` and the alias in the script below. You 
 ## How to install
 
 ```bash
-export CANOPY_HOME='~/CANOPY'
+export CANOPY_HOME=~/CANOPY
 
 cd ${CANOPY_HOME}
 git clone https://github.com/canopy-datahub/canopy-cli
