@@ -19,8 +19,24 @@ class InitWorker(Worker):
 
     @staticmethod
     def init():
+        # Strict pre-check: required environment variables
+        required_env_vars = ['CANOPY_HOME', 'CANOPY_ENV']
+        missing_env = [v for v in required_env_vars if not os.environ.get(v)]
+        if missing_env:
+            console.print(Panel(
+                "The following required environment variables are not set:\n\n"
+                + "\n".join(f"  ✗ {v}" for v in missing_env)
+                + "\n\nPlease set them before running 'canopycli init'. No files were copied.",
+                title="[bold red]Error - Missing Environment Variables",
+                title_align="left",
+                style=Style(color="red"),
+            ))
+            return
+
         home = Util.app_home
         user = getpass.getuser()
+        canopy_env = os.environ['CANOPY_ENV']
+        canopy_home = os.environ['CANOPY_HOME']
 
         target_files = {
             'aws-parameters': {
@@ -76,12 +92,13 @@ class InitWorker(Worker):
                 ))
             return
 
-        # If set-canopy-env.sh was copied, personalize it for the current user
+        # If set-canopy-env.sh was copied, substitute placeholders and personalize
         if 'set-canopy-env' in missing:
             env_file = target_files['set-canopy-env']['target']
             content = Util.read_file(env_file)
             if content:
-                content = content.replace('-user.json', f'-{user}.json')
+                content = content.replace('<<CANOPY_ENV>>', canopy_env)
+                content = content.replace('<<CANOPY_HOME>>', canopy_home)
                 content = content.replace('AWS_PROFILE=canopy-dev', f'AWS_PROFILE=canopy-{user}-dev')
                 Util.write_file(env_file, content)
 
