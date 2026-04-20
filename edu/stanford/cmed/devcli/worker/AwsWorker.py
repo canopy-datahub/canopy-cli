@@ -347,6 +347,80 @@ class AwsWorker(Worker):
             title=f"RDS endpoint for '{project}-postgresql-{env}'",
         )
 
+    @staticmethod
+    def rds_deploy_schema(dry_run: bool = False):
+        """Run the RDS schema deployment script (canopy-development/db/postgres/db-create-scripts/deploy_to_rds.py)."""
+        if not AwsWorker._check_env():
+            return
+
+        canopy_home = AwsWorker._get_env("CANOPY_HOME")
+        if not canopy_home:
+            console.print(
+                Panel(
+                    "[red]CANOPY_HOME is not set."
+                    "\n[yellow]Source your set-canopy-env.sh first.",
+                    title="Error",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        env = AwsWorker._get_env("CANOPY_ENV")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+        region = AwsWorker._get_env("AWS_REGION") or "us-east-1"
+
+        script_dir = os.path.join(
+            canopy_home, "canopy-development", "db", "postgres", "db-create-scripts"
+        )
+        script_path = os.path.join(script_dir, "deploy_to_rds.py")
+
+        if not os.path.exists(script_path):
+            console.print(
+                Panel(
+                    f"[red]Schema script not found: {script_path}"
+                    f"\n[yellow]Make sure the canopy-development repo is cloned under CANOPY_HOME.",
+                    title="Error",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            return
+
+        cmd = (
+            f"cd {script_dir} && "
+            f"python deploy_to_rds.py"
+            f" --project-name {project}"
+            f" --env {env}"
+            f" --region {region}"
+            f" --profile {profile}"
+        )
+
+        console.print(
+            Panel(
+                f"[yellow] Script  : {script_path}\n"
+                f" Project : {project}\n"
+                f" Env     : {env}\n"
+                f" Region  : {region}\n"
+                f" Profile : {profile}\n"
+                f" Command :\n[dim]{cmd}[/dim]",
+                title="RDS Schema Deploy",
+                title_align="left",
+            ),
+            style=Style(color="yellow"),
+        )
+
+        if dry_run:
+            console.print("[bold yellow]Dry run — command was NOT executed.[/bold yellow]")
+            return
+
+        console.print()
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"Deploying RDS schema for '{project}-postgresql-{env}'",
+        )
+
     # ---- CloudWatch Logs --------------------------------------------------
 
     @staticmethod

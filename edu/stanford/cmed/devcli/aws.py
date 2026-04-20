@@ -65,6 +65,13 @@ def rds_endpoint():
     AwsWorker.rds_endpoint()
 
 
+@rds_app.command("deploy-schema", help="Run the RDS schema deployment script (creates users, tables, views, and seed data)")
+def rds_deploy_schema(
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show the command without executing it"),
+):
+    AwsWorker.rds_deploy_schema(dry_run)
+
+
 # ── Sub-group: canopycli aws logs ────────────────────────────────────────
 logs_app = typer.Typer(no_args_is_help=True)
 app.add_typer(logs_app, name="logs", help="CloudWatch Logs operations...")
