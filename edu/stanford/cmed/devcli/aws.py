@@ -92,6 +92,19 @@ def ecr_list():
     AwsWorker.ecr_list()
 
 
+@ecr_app.command(
+    "list-images",
+    help="List image tags in project ECR repos (all project repos, or filter to one by service name)",
+)
+def ecr_list_images(
+    service: str = typer.Argument(
+        None,
+        help="Optional: one service name (e.g. keycloak, user-service) — restricts the listing to '<project>-<service>/<env>'. Omit to list all project repos.",
+    ),
+):
+    AwsWorker.ecr_list_images(service)
+
+
 # ── Sub-group: canopycli aws transfer ────────────────────────────────────
 transfer_app = typer.Typer(no_args_is_help=True)
 app.add_typer(transfer_app, name="transfer", help="Transfer Family operations...")
@@ -110,6 +123,11 @@ app.add_typer(ec2_app, name="ec2", help="EC2 operations...")
 @ec2_app.command("allocate-eip", help="Allocate an Elastic IP for SFTP")
 def ec2_allocate_eip():
     AwsWorker.ec2_allocate_eip()
+
+
+@ec2_app.command("describe-eip", help="List Elastic IPs tagged for this project (shows AllocationId + PublicIp)")
+def ec2_describe_eip():
+    AwsWorker.ec2_describe_eip()
 
 
 # ── Sub-group: canopycli aws ecs ─────────────────────────────────────────
@@ -157,3 +175,44 @@ app.add_typer(opensearch_app, name="opensearch", help="OpenSearch operations..."
 @opensearch_app.command("endpoint", help="Show OpenSearch VPC endpoint for the project")
 def opensearch_endpoint():
     AwsWorker.opensearch_endpoint()
+
+
+# ── Sub-group: canopycli aws ses ─────────────────────────────────────────
+ses_app = typer.Typer(no_args_is_help=True)
+app.add_typer(ses_app, name="ses", help="SES (Simple Email Service) operations...")
+
+
+@ses_app.command("dkim", help="Show DKIM CNAME records to add to DNS for an SES identity")
+def ses_dkim(
+    identity: str = typer.Argument(
+        None,
+        help="Optional: SES identity (usually a domain, e.g. egyedia.com). If omitted, defaults to SenderDomain from the param file.",
+    ),
+):
+    AwsWorker.ses_dkim(identity)
+
+
+@ses_app.command("verification", help="Show the overall VerificationStatus for an SES identity (email or domain)")
+def ses_verification(
+    identity: str = typer.Argument(
+        None,
+        help="Optional: SES identity (email or domain). If omitted, defaults to SupportEmail from the param file.",
+    ),
+):
+    AwsWorker.ses_verification(identity)
+
+
+# ── Top-level: canopycli aws open ────────────────────────────────────────
+@app.command("open", help="Open a project URL in your default browser")
+def aws_open(
+    target: str = typer.Argument(
+        ...,
+        help=(
+            "What to open. Options: "
+            "'keycloak-admin' (master realm console), "
+            "'keycloak-realm' (CANOPY realm console), "
+            "'app' (the app root)."
+        ),
+    ),
+):
+    AwsWorker.open_url(target)

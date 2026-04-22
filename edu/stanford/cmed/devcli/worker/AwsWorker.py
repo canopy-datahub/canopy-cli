@@ -1,6 +1,8 @@
+import json
 import os
 import subprocess
 import sys
+import webbrowser
 
 from rich.console import Console
 from rich.panel import Panel
@@ -467,6 +469,69 @@ class AwsWorker(Worker):
             title=f"ECR repositories matching '{project}'",
         )
 
+    @staticmethod
+    def ecr_list_images(service: str = None):
+        """List image tags in project ECR repos.
+
+        If ``service`` is provided, restricts the listing to
+        ``<project>-<service>/<env>`` (e.g. ``keycloak`` → ``canopy-keycloak/prod``).
+        If omitted, loops over every ECR repo whose name contains the project name
+        and prints its tags.
+        """
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        env = AwsWorker._get_env("CANOPY_ENV")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        if service:
+            repository = f"{project}-{service}/{env}"
+            cmd = (
+                f"aws ecr list-images"
+                f" --repository-name {repository}"
+                f" --query 'imageIds[].imageTag'"
+                f" --output text"
+                f" --no-cli-pager"
+                f" --profile {profile}"
+            )
+            Worker.execute_generic_shell_commands(
+                [cmd],
+                title=f"ECR image tags in '{repository}'",
+            )
+            return
+
+        # No service filter — iterate every project-owned repo, one line per
+        # repo: "<repository-name>   <tag1>, <tag2>, ..."  or "(no images)".
+        cmd = (
+            "for repo in $("
+            f"aws ecr describe-repositories"
+            f" --query \"repositories[?contains(repositoryName, \\`{project}\\`)].repositoryName\""
+            f" --output text"
+            f" --no-cli-pager"
+            f" --profile {profile}"
+            "); do "
+            "  tags=$("
+            f"aws ecr list-images"
+            "    --repository-name \"$repo\""
+            "    --query 'imageIds[].imageTag'"
+            "    --output text"
+            "    --no-cli-pager"
+            f"    --profile {profile}"
+            "  2>/dev/null); "
+            "  if [ -z \"$tags\" ]; then "
+            "    printf '%-40s %s\\n' \"$repo\" '(no images)'; "
+            "  else "
+            "    printf '%-40s %s\\n' \"$repo\" \"$(echo \"$tags\" | tr '\\t\\n' ',,' | sed 's/,/, /g; s/, $//')\"; "
+            "  fi; "
+            "done"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"ECR image tags across all '{project}'-prefixed repos",
+        )
+
     # ---- Transfer Family --------------------------------------------------
 
     @staticmethod
@@ -523,6 +588,38 @@ class AwsWorker(Worker):
         Worker.execute_generic_shell_commands(
             [cmd],
             title=f"Allocate Elastic IP for '{project}-sftp-{env}'",
+        )
+
+    @staticmethod
+    def ec2_describe_eip():
+        """List Elastic IPs tagged with this project's projectname/environment tags.
+
+        Useful after allocate-eip: shows AllocationId (the value to paste into
+        ElasticIPAllocationId in the param file) alongside PublicIp and Name.
+        """
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        env = AwsWorker._get_env("CANOPY_ENV")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+
+        cmd = (
+            f"aws ec2 describe-addresses"
+            f" --filters \"Name=tag:projectname,Values={project}\""
+            f"           \"Name=tag:environment,Values={env}\""
+            f" --query 'Addresses[*].{{Name:Tags[?Key==`Name`]|[0].Value,"
+            f"AllocationId:AllocationId,"
+            f"PublicIp:PublicIp,"
+            f"AssociationId:AssociationId}}'"
+            f" --output table"
+            f" --no-cli-pager"
+            f" --profile {profile}"
+        )
+
+        Worker.execute_generic_shell_commands(
+            [cmd],
+            title=f"Elastic IPs tagged projectname='{project}', environment='{env}'",
         )
 
     # ---- ECS --------------------------------------------------------------
@@ -652,3 +749,293 @@ class AwsWorker(Worker):
             [cmd],
             title=f"OpenSearch VPC endpoint for '{domain}'",
         )
+
+    # ---- SES --------------------------------------------------------------
+
+    @staticmethod
+    def ses_dkim(identity: str = None):
+        """Show DKIM CNAME records to add to DNS for an SES identity.
+
+        If ``identity`` is omitted, reads ``SenderDomain`` from the param file.
+        Prints a two-column table of host + value for each of the three DKIM
+        CNAMEs, plus the current verification status.
+        """
+        if not AwsWorker._check_env():
+            return
+
+        if not identity:
+            identity = AwsWorker._param_value("SenderDomain")
+            if not identity:
+                console.print(
+                    Panel(
+                        "[red]No identity given and SenderDomain is empty in the param file."
+                        "\n[yellow]Pass an identity as argument (canopycli aws ses dkim egyedia.com)"
+                        " or set SenderDomain in your aws-parameters-*.json.",
+                        title="Error",
+                        title_align="left",
+                    ),
+                    style=Style(color="red"),
+                )
+                return
+
+        profile = AwsWorker._get_env("AWS_PROFILE")
+        region = AwsWorker._get_env("AWS_REGION") or "us-east-1"
+
+        cmd = [
+            "aws", "ses", "get-identity-dkim-attributes",
+            "--identities", identity,
+            "--profile", profile,
+            "--region", region,
+            "--output", "json",
+            "--no-cli-pager",
+        ]
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        except FileNotFoundError:
+            console.print("[red]aws CLI not found on PATH.")
+            return
+        except subprocess.CalledProcessError as exc:
+            console.print(
+                Panel(
+                    f"[red]aws ses get-identity-dkim-attributes failed (exit {exc.returncode}):\n"
+                    f"[yellow]{(exc.stderr or exc.stdout or '').strip()}",
+                    title="Error",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            return
+
+        try:
+            attrs = json.loads(result.stdout).get("DkimAttributes", {}).get(identity, {})
+        except json.JSONDecodeError:
+            console.print(f"[red]Could not parse AWS CLI output:\n{result.stdout}")
+            return
+
+        if not attrs:
+            console.print(
+                Panel(
+                    f"[red]SES has no DKIM attributes for identity [bold]{identity}[/bold]."
+                    f"\n[yellow]Likely the identity wasn't created yet — deploy the SES stack first.",
+                    title="Error",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            return
+
+        tokens = attrs.get("DkimTokens", []) or []
+        status = attrs.get("DkimVerificationStatus", "Unknown")
+        enabled = attrs.get("DkimEnabled", False)
+
+        table = Table(
+            "Type",
+            "Host",
+            "Value",
+            title=f"DKIM CNAME records for '{identity}' — add all three to your DNS zone",
+        )
+        for token in tokens:
+            table.add_row(
+                "CNAME",
+                f"{token}._domainkey.{identity}",
+                f"{token}.dkim.amazonses.com",
+            )
+        table.style = Style(color="green")
+        console.print(table)
+
+        status_color = {
+            "Success": "green",
+            "Pending": "yellow",
+            "Failed": "red",
+            "NotStarted": "yellow",
+            "TemporaryFailure": "yellow",
+        }.get(status, "yellow")
+        console.print(
+            f"[bold]DkimEnabled:[/bold] {enabled}   "
+            f"[bold]DkimVerificationStatus:[/bold] [{status_color}]{status}[/{status_color}]"
+        )
+        if status != "Success":
+            console.print(
+                "[dim]Once all three CNAMEs resolve in public DNS, SES flips the status to Success "
+                "(usually minutes, sometimes up to 72 hours).[/dim]"
+            )
+
+    @staticmethod
+    def ses_verification(identity: str = None):
+        """Show the overall VerificationStatus for an SES identity (email or domain).
+
+        If ``identity`` is omitted, reads ``SupportEmail`` from the param file.
+        Use this for email identities; for domain identities, DKIM status from
+        ``ses_dkim`` is more informative.
+        """
+        if not AwsWorker._check_env():
+            return
+
+        if not identity:
+            identity = AwsWorker._param_value("SupportEmail")
+            if not identity:
+                console.print(
+                    Panel(
+                        "[red]No identity given and SupportEmail is empty in the param file."
+                        "\n[yellow]Pass an identity as argument (canopycli aws ses verification someone@example.com)"
+                        " or set SupportEmail in your aws-parameters-*.json.",
+                        title="Error",
+                        title_align="left",
+                    ),
+                    style=Style(color="red"),
+                )
+                return
+
+        profile = AwsWorker._get_env("AWS_PROFILE")
+        region = AwsWorker._get_env("AWS_REGION") or "us-east-1"
+
+        cmd = [
+            "aws", "ses", "get-identity-verification-attributes",
+            "--identities", identity,
+            "--profile", profile,
+            "--region", region,
+            "--output", "json",
+            "--no-cli-pager",
+        ]
+
+        try:
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        except FileNotFoundError:
+            console.print("[red]aws CLI not found on PATH.")
+            return
+        except subprocess.CalledProcessError as exc:
+            console.print(
+                Panel(
+                    f"[red]aws ses get-identity-verification-attributes failed (exit {exc.returncode}):\n"
+                    f"[yellow]{(exc.stderr or exc.stdout or '').strip()}",
+                    title="Error",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            return
+
+        try:
+            attrs = json.loads(result.stdout).get("VerificationAttributes", {}).get(identity, {})
+        except json.JSONDecodeError:
+            console.print(f"[red]Could not parse AWS CLI output:\n{result.stdout}")
+            return
+
+        if not attrs:
+            console.print(
+                Panel(
+                    f"[red]SES has no verification attributes for identity [bold]{identity}[/bold]."
+                    f"\n[yellow]Likely the identity wasn't created yet — deploy the SES stack first.",
+                    title="Error",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            return
+
+        status = attrs.get("VerificationStatus", "Unknown")
+        token = attrs.get("VerificationToken")
+
+        status_color = {
+            "Success": "green",
+            "Pending": "yellow",
+            "Failed": "red",
+            "NotStarted": "yellow",
+            "TemporaryFailure": "yellow",
+        }.get(status, "yellow")
+
+        console.print(
+            Panel(
+                f"[bold]Identity:[/bold] {identity}\n"
+                f"[bold]VerificationStatus:[/bold] [{status_color}]{status}[/{status_color}]"
+                + (f"\n[dim]Token: {token}[/dim]" if token else ""),
+                title="SES identity verification status",
+                title_align="left",
+            ),
+            style=Style(color="green" if status == "Success" else "yellow"),
+        )
+
+        if status != "Success":
+            console.print(
+                "[dim]For an [bold]email[/bold] identity, check the inbox — AWS sent a 'Verify your email' "
+                "link that must be clicked. For a [bold]domain[/bold] identity, use "
+                "[bold]canopycli aws ses dkim[/bold] to get the DKIM CNAMEs and add them to DNS.[/dim]"
+            )
+
+    # ---- Browser-open helpers --------------------------------------------
+
+    # Short-name → URL-path-suffix mapping. Keep lowercase-hyphenated and obvious.
+    _OPEN_TARGETS = {
+        "keycloak-admin": "/admin/master/console/",
+        "keycloak-realm": "/admin/CANOPY/console/",
+        "app": "/",
+    }
+
+    @staticmethod
+    def _param_value(key: str) -> str:
+        """Read a single key from the Parameters block of CANOPY_AWS_PARAMETER_FILE.
+        Returns empty string if the file is missing / unreadable / the key is absent."""
+        param_path = AwsWorker._get_env("CANOPY_AWS_PARAMETER_FILE")
+        if not param_path or not os.path.isfile(param_path):
+            return ""
+        try:
+            with open(param_path, "r") as f:
+                params = json.load(f).get("Parameters", {})
+            return params.get(key) or ""
+        except (json.JSONDecodeError, OSError):
+            return ""
+
+    @staticmethod
+    def _public_hostname() -> str:
+        """PublicHostname from the param file, with any trailing slash stripped."""
+        return AwsWorker._param_value("PublicHostname").rstrip("/")
+
+    @staticmethod
+    def open_url(target: str):
+        """Open ${PublicHostname}<suffix> for the given short target in the default browser."""
+        if not AwsWorker._check_env():
+            return
+
+        if target not in AwsWorker._OPEN_TARGETS:
+            console.print(
+                Panel(
+                    f"[red]Unknown target: [bold]{target}[/bold]"
+                    f"\n[yellow]Available: " + ", ".join(AwsWorker._OPEN_TARGETS.keys()),
+                    title="Error",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            return
+
+        public_host = AwsWorker._public_hostname()
+        if not public_host:
+            console.print(
+                Panel(
+                    "[red]PublicHostname is not set in the param file."
+                    "\n[yellow]Check CANOPY_AWS_PARAMETER_FILE and the 'PublicHostname' key.",
+                    title="Error",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            return
+
+        url = f"{public_host}{AwsWorker._OPEN_TARGETS[target]}"
+
+        console.print(
+            Panel(
+                f"[yellow] Target : [bold]{target}[/bold]\n"
+                f" URL    : [cyan]{url}[/cyan]",
+                title="Opening in default browser",
+                title_align="left",
+            ),
+            style=Style(color="yellow"),
+        )
+
+        if not webbrowser.open(url):
+            console.print(
+                "[red]Could not launch a browser. Open this URL manually: "
+                f"[cyan]{url}[/cyan]"
+            )
