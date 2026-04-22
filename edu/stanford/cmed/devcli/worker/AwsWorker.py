@@ -562,6 +562,19 @@ class AwsWorker(Worker):
     # ---- ECS --------------------------------------------------------------
 
     @staticmethod
+    def ecs_deploy(service: str, tag: str = None, dry_run: bool = False):
+        """Build + push a service image and trigger ECS deployment via BuildEcsWorker.
+
+        Replaces the retired canopy-deployment-scripts/deploy.py. Covers all eight
+        services (user-service, submission-service, report-service, download-service,
+        approved-data-service, entity-service, search-service, ui, keycloak) with the
+        same pipeline: verify → Maven (backend) → ECR login → docker build+push →
+        ECS UpdateService (first-run-aware).
+        """
+        from edu.stanford.cmed.devcli.worker.BuildEcsWorker import BuildEcsWorker
+        BuildEcsWorker.deploy(service, tag=tag, dry_run=dry_run)
+
+    @staticmethod
     def ecs_list_services():
         """List ECS services in the project cluster."""
         if not AwsWorker._check_env():

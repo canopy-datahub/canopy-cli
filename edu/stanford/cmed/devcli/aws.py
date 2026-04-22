@@ -140,6 +140,32 @@ def ecs_list_services():
     AwsWorker.ecs_list_services()
 
 
+@ecs_app.command(
+    "deploy",
+    help="Build + push a service image and trigger ECS deployment (user-service, submission-service, …, ui, keycloak)",
+)
+def ecs_deploy(
+    service: str = typer.Argument(
+        ...,
+        help=(
+            "Service name. Options: user-service | submission-service | report-service | "
+            "download-service | approved-data-service | entity-service | search-service | "
+            "ui | keycloak"
+        ),
+    ),
+    tag: str = typer.Option(
+        None,
+        "--tag",
+        help=(
+            "Docker image tag. Defaults to 'latest' for most services; for 'keycloak', "
+            "defaults to the KeycloakImageTag value from the param file."
+        ),
+    ),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would happen without executing"),
+):
+    AwsWorker.ecs_deploy(service, tag=tag, dry_run=dry_run)
+
+
 # ── Sub-group: canopycli aws lambda ──────────────────────────────────────
 lambda_app = typer.Typer(no_args_is_help=True)
 app.add_typer(lambda_app, name="lambda", help="Lambda operations...")
