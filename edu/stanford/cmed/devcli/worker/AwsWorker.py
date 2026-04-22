@@ -622,6 +622,16 @@ class AwsWorker(Worker):
         BuildLambdaWorker.deploy(target, dry_run=dry_run)
 
     @staticmethod
+    def lambda_create_layer(name: str = "dependency-layer", dry_run: bool = False):
+        """Build + publish the ARM64 Python 3.11 dependency layer via BuildLambdaWorker.
+
+        Replaces the retired script
+        canopy-development/opensearch/opensearch_reindex/create_layer.py.
+        """
+        from edu.stanford.cmed.devcli.worker.BuildLambdaWorker import BuildLambdaWorker
+        BuildLambdaWorker.create_layer(name=name, dry_run=dry_run)
+
+    @staticmethod
     def lambda_invoke(function_suffix: str):
         """Invoke a Lambda function and show the response inline."""
         if not AwsWorker._check_env():

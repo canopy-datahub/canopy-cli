@@ -168,6 +168,17 @@ def lambda_deploy(
     AwsWorker.lambda_deploy(target, dry_run)
 
 
+@lambda_app.command(
+    "create-layer",
+    help="Build the ARM64 Python 3.11 dependency layer (Docker + pip) and publish it to Lambda",
+)
+def lambda_create_layer(
+    name: str = typer.Option("dependency-layer", "--name", help="Layer name"),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would happen without executing"),
+):
+    AwsWorker.lambda_create_layer(name, dry_run)
+
+
 # ── Sub-group: canopycli aws secrets ─────────────────────────────────────
 secrets_app = typer.Typer(no_args_is_help=True)
 app.add_typer(secrets_app, name="secrets", help="Secrets Manager operations...")
