@@ -157,6 +157,17 @@ def lambda_invoke(
     AwsWorker.lambda_invoke(function)
 
 
+@lambda_app.command("deploy", help="Build a Lambda artifact (code zip or Spring Boot jar) and upload it to S3")
+def lambda_deploy(
+    target: str = typer.Argument(
+        ...,
+        help="Target to build+upload. Options: opensearch-reindex | email-service",
+    ),
+    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would happen without executing"),
+):
+    AwsWorker.lambda_deploy(target, dry_run)
+
+
 # ── Sub-group: canopycli aws secrets ─────────────────────────────────────
 secrets_app = typer.Typer(no_args_is_help=True)
 app.add_typer(secrets_app, name="secrets", help="Secrets Manager operations...")

@@ -609,6 +609,19 @@ class AwsWorker(Worker):
         )
 
     @staticmethod
+    def lambda_deploy(target: str, dry_run: bool = False):
+        """Build + upload a Lambda artifact via BuildLambdaWorker.
+
+        Replaces the retired scripts:
+          - canopy-development/opensearch/opensearch_reindex/deploy_lambda.py
+            (target = opensearch-reindex)
+          - the manual mvn + aws s3 cp sequence for datahub-service-email
+            (target = email-service)
+        """
+        from edu.stanford.cmed.devcli.worker.BuildLambdaWorker import BuildLambdaWorker
+        BuildLambdaWorker.deploy(target, dry_run=dry_run)
+
+    @staticmethod
     def lambda_invoke(function_suffix: str):
         """Invoke a Lambda function and show the response inline."""
         if not AwsWorker._check_env():
