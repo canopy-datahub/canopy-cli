@@ -65,11 +65,6 @@ SERVICES: Dict[str, Dict[str, str]] = {
         "ecr_suffix": "download-service",
         "ecs_suffix": "DownloadService",
     },
-    "approved-data-service": {
-        "source_dir": "datahub-service-approved-data",
-        "ecr_suffix": "approved-data-service",
-        "ecs_suffix": "ApprovedDataService",
-    },
     "entity-service": {
         "source_dir": "datahub-service-entity",
         "ecr_suffix": "entityservice",

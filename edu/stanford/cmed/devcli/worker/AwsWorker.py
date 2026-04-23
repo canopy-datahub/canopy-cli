@@ -567,9 +567,9 @@ class AwsWorker(Worker):
 
         Replaces the retired canopy-deployment-scripts/deploy.py. Covers all eight
         services (user-service, submission-service, report-service, download-service,
-        approved-data-service, entity-service, search-service, ui, keycloak) with the
-        same pipeline: verify → Maven (backend) → ECR login → docker build+push →
-        ECS UpdateService (first-run-aware).
+        entity-service, search-service, ui, keycloak) with the same pipeline:
+        verify → Maven (backend) → ECR login → docker build+push → ECS UpdateService
+        (first-run-aware).
         """
         from edu.stanford.cmed.devcli.worker.BuildEcsWorker import BuildEcsWorker
         BuildEcsWorker.deploy(service, tag=tag, dry_run=dry_run)

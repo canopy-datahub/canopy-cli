@@ -149,8 +149,7 @@ def ecs_deploy(
         ...,
         help=(
             "Service name. Options: user-service | submission-service | report-service | "
-            "download-service | approved-data-service | entity-service | search-service | "
-            "ui | keycloak"
+            "download-service | entity-service | search-service | ui | keycloak"
         ),
     ),
     tag: str = typer.Option(
