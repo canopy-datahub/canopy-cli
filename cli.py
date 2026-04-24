@@ -1,10 +1,9 @@
 import typer
 
 from edu.stanford.cmed.devcli import repo
-from edu.stanford.cmed.devcli import start, stop, env, git, build, check, aws, clean, server
+from edu.stanford.cmed.devcli import start, stop, env, git, build, check, aws, clean, server, init
 from edu.stanford.cmed.devcli.util.GlobalContext import GlobalContext
 from edu.stanford.cmed.devcli.worker.CheatWorker import CheatWorker
-from edu.stanford.cmed.devcli.worker.InitWorker import InitWorker
 from edu.stanford.cmed.devcli.worker.ServerWorker import ServerWorker
 
 GlobalContext()
@@ -21,11 +20,7 @@ app.add_typer(start.app, name="start", help="Start various components...")
 app.add_typer(stop.app, name="stop", help="Stop various components...")
 app.add_typer(check.app, name="check", help="Check various artifacts...")
 app.add_typer(aws.app, name="aws", help="AWS operations...")
-
-
-@app.command("init", help="Initialize CANOPY_HOME with required configuration files")
-def init():
-    InitWorker.init()
+app.add_typer(init.app, name="init", help="Initialize config files (cli / ui-env)...")
 
 
 @app.command("cheat", help="Open cheatsheet")

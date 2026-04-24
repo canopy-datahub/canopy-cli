@@ -19,13 +19,30 @@ class InitWorker(Worker):
 
     @staticmethod
     def init():
+        # Strict pre-check: required environment variables
+        required_env_vars = ['CANOPY_HOME', 'CANOPY_ENV']
+        missing_env = [v for v in required_env_vars if not os.environ.get(v)]
+        if missing_env:
+            console.print(Panel(
+                "The following required environment variables are not set:\n\n"
+                + "\n".join(f"  ✗ {v}" for v in missing_env)
+                + "\n\nPlease set them before running 'canopycli init'. No files were copied.",
+                title="[bold red]Error - Missing Environment Variables",
+                title_align="left",
+                style=Style(color="red"),
+            ))
+            return
+
         home = Util.app_home
         user = getpass.getuser()
+        canopy_env = os.environ['CANOPY_ENV']
+        canopy_home = os.environ['CANOPY_HOME']
 
+        aws_parameters_filename = f'aws-parameters-{canopy_env}-{user}.json'
         target_files = {
             'aws-parameters': {
-                'target': os.path.join(home, f'aws-parameters-dev-{user}.json'),
-                'source': os.path.join(home, 'canopy-cloud-replication', 'file-templates', 'aws-parameters-dev.json'),
+                'target': os.path.join(home, aws_parameters_filename),
+                'source': os.path.join(home, 'canopy-cloud-replication', 'file-templates', 'aws-parameters.json'),
             },
             'canopy-profile': {
                 'target': os.path.join(home, 'canopy-profile-native-develop.sh'),
@@ -45,7 +62,7 @@ class InitWorker(Worker):
         if not missing:
             console.print(Panel(
                 f"All init files are already in place for user [bold]{user}[/bold].\n\n"
-                f"  ✓ aws-parameters-dev-{user}.json\n"
+                f"  ✓ {aws_parameters_filename}\n"
                 f"  ✓ canopy-profile-native-develop.sh\n"
                 f"  ✓ set-canopy-env.sh",
                 title="[bold green]Init",
@@ -76,14 +93,23 @@ class InitWorker(Worker):
                 ))
             return
 
-        # If set-canopy-env.sh was copied, personalize it for the current user
+        # If set-canopy-env.sh was copied, substitute placeholders and personalize
         if 'set-canopy-env' in missing:
             env_file = target_files['set-canopy-env']['target']
             content = Util.read_file(env_file)
             if content:
-                content = content.replace('-user.json', f'-{user}.json')
-                content = content.replace('AWS_PROFILE=canopy-dev', f'AWS_PROFILE=canopy-{user}-dev')
+                content = content.replace('<<CANOPY_ENV>>', canopy_env)
+                content = content.replace('<<CANOPY_HOME>>', canopy_home)
+                content = content.replace('<<USERNAME>>', user)
                 Util.write_file(env_file, content)
+
+        # If aws-parameters was copied, substitute the CANOPY_ENV placeholder inside it
+        if 'aws-parameters' in missing:
+            aws_file = target_files['aws-parameters']['target']
+            content = Util.read_file(aws_file)
+            if content:
+                content = content.replace('<<CANOPY_ENV>>', canopy_env)
+                Util.write_file(aws_file, content)
 
         copied_msg = "\n".join([f"  → {path}" for _, path in copied])
         console.print(Panel(
@@ -95,7 +121,7 @@ class InitWorker(Worker):
 
         if any(key == 'aws-parameters' for key, _ in copied):
             console.print(Panel(
-                f"[bold]Please update the values in [yellow]aws-parameters-dev-{user}.json[/yellow] "
+                f"[bold]Please update the values in [yellow]{aws_parameters_filename}[/yellow] "
                 f"before installing the rest of the components.[/bold]",
                 title="[bold yellow]Action Required",
                 title_align="left",

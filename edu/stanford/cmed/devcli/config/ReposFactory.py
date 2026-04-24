@@ -18,7 +18,6 @@ class ReposFactory:
 
         repos.add_repo(Repo("canopy-cli", RepoType.PYTHON, ArtifactType.NONE, [], allow_different_version=True))
         repos.add_repo(Repo("canopy-cloud-replication", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
-        repos.add_repo(Repo("canopy-deployment-scripts", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
         repos.add_repo(Repo("canopy-development", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
         repos.add_repo(Repo("canopy-docs", RepoType.DEVELOPMENT, ArtifactType.NONE, [], allow_different_version=True))
 
