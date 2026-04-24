@@ -628,7 +628,7 @@ class AwsWorker(Worker):
         Replaces the retired scripts:
           - canopy-development/opensearch/opensearch_reindex/deploy_lambda.py
             (target = opensearch-reindex)
-          - the manual mvn + aws s3 cp sequence for datahub-service-email
+          - the manual mvn + aws s3 cp sequence for canopy-service-email
             (target = email-service)
         """
         from edu.stanford.cmed.devcli.worker.BuildLambdaWorker import BuildLambdaWorker

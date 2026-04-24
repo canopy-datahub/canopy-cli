@@ -23,14 +23,14 @@ class ReposFactory:
 
         repos.add_repo(Repo("canopy-project", RepoType.JAVA_WRAPPER, ArtifactType.MAVEN, [V.POM_OWN]))
 
-        repos.add_repo(Repo("datahub-service-download", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
-        repos.add_repo(Repo("datahub-service-email", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
-        repos.add_repo(Repo("datahub-service-entity", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
-        repos.add_repo(Repo("datahub-service-report", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
-        repos.add_repo(Repo("datahub-service-search", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
-        repos.add_repo(Repo("datahub-service-submission", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
-        repos.add_repo(Repo("datahub-service-user", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
+        repos.add_repo(Repo("canopy-service-download", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
+        repos.add_repo(Repo("canopy-service-email", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
+        repos.add_repo(Repo("canopy-service-entity", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
+        repos.add_repo(Repo("canopy-service-report", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
+        repos.add_repo(Repo("canopy-service-search", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
+        repos.add_repo(Repo("canopy-service-submission", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
+        repos.add_repo(Repo("canopy-service-user", RepoType.JAVA, ArtifactType.MAVEN, [V.POM_OWN], is_microservice=True, allow_different_version=True))
 
-        repos.add_repo(Repo("datahub-ui-main", RepoType.REACT, ArtifactType.NPM, [V.PACKAGE_OWN], is_frontend=True, allow_different_version=True))
+        repos.add_repo(Repo("canopy-ui-main", RepoType.REACT, ArtifactType.NPM, [V.PACKAGE_OWN], is_frontend=True, allow_different_version=True))
 
         return repos

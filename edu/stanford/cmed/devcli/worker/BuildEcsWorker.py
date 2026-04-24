@@ -46,37 +46,37 @@ console = Console()
 # search-service → search (no -service), ui/keycloak get Dockerfile-internal builds.
 SERVICES: Dict[str, Dict[str, str]] = {
     "user-service": {
-        "source_dir": "datahub-service-user",
+        "source_dir": "canopy-service-user",
         "ecr_suffix": "user-service",
         "ecs_suffix": "UserService",
     },
     "submission-service": {
-        "source_dir": "datahub-service-submission",
+        "source_dir": "canopy-service-submission",
         "ecr_suffix": "submission-service",
         "ecs_suffix": "SubmissionService",
     },
     "report-service": {
-        "source_dir": "datahub-service-report",
+        "source_dir": "canopy-service-report",
         "ecr_suffix": "report-service",
         "ecs_suffix": "ReportService",
     },
     "download-service": {
-        "source_dir": "datahub-service-download",
+        "source_dir": "canopy-service-download",
         "ecr_suffix": "download-service",
         "ecs_suffix": "DownloadService",
     },
     "entity-service": {
-        "source_dir": "datahub-service-entity",
+        "source_dir": "canopy-service-entity",
         "ecr_suffix": "entityservice",
         "ecs_suffix": "EntityService",
     },
     "search-service": {
-        "source_dir": "datahub-service-search",
+        "source_dir": "canopy-service-search",
         "ecr_suffix": "search",
         "ecs_suffix": "Search",
     },
     "ui": {
-        "source_dir": "datahub-ui-main",
+        "source_dir": "canopy-ui-main",
         "ecr_suffix": "ui",
         "ecs_suffix": "UI",
     },

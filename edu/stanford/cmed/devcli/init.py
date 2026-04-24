@@ -4,7 +4,7 @@ canopycli init — sub-command group for bootstrapping configuration files.
   canopycli init cli      → CANOPY_HOME config (aws-parameters, set-canopy-env.sh,
                             canopy-profile-native-develop.sh) — the original behaviour
                             of the single `canopycli init` command.
-  canopycli init ui-env   → datahub-ui-main/.env.${CANOPY_ENV}, populated from the
+  canopycli init ui-env   → canopy-ui-main/.env.${CANOPY_ENV}, populated from the
                             param file.
 """
 
@@ -24,7 +24,7 @@ def init_cli():
 @app.command(
     "ui-env",
     help=(
-        "Generate datahub-ui-main/.env.${CANOPY_ENV} from .env.example, "
+        "Generate canopy-ui-main/.env.${CANOPY_ENV} from .env.example, "
         "pre-filling values from the aws-parameters file."
     ),
 )

@@ -427,13 +427,13 @@ class BuildLambdaWorker:
         if not BuildLambdaWorker._require_tool("aws"):
             return
 
-        source_dir = ctx["canopy_home"] / "datahub-service-email"
+        source_dir = ctx["canopy_home"] / "canopy-service-email"
         pom = source_dir / "pom.xml"
         if not pom.is_file():
             console.print(
                 Panel(
                     f"[red]pom.xml not found at {pom}"
-                    f"\n[yellow]Ensure the datahub-service-email repo is cloned under CANOPY_HOME.",
+                    f"\n[yellow]Ensure the canopy-service-email repo is cloned under CANOPY_HOME.",
                     title="Error",
                     title_align="left",
                 ),

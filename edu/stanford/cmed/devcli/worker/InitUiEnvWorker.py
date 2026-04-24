@@ -1,5 +1,5 @@
 """
-Generate datahub-ui-main/.env.${CANOPY_ENV} from .env.example, pre-filling the
+Generate canopy-ui-main/.env.${CANOPY_ENV} from .env.example, pre-filling the
 NEXT_PUBLIC_* values that the aws-parameters file already knows about.
 
 Invoked via `canopycli init ui-env` (see init.py). The resulting file is the
@@ -23,7 +23,7 @@ console = Console()
 
 
 # Relative paths under ${CANOPY_HOME}.
-UI_DIR_RELPATH = ("datahub-ui-main",)
+UI_DIR_RELPATH = ("canopy-ui-main",)
 EXAMPLE_FILENAME = ".env.example"
 
 
@@ -74,7 +74,7 @@ class InitUiEnvWorker(Worker):
             console.print(
                 Panel(
                     f"[red]Source template not found: {source}"
-                    f"\n[yellow]Make sure datahub-ui-main is cloned under CANOPY_HOME.",
+                    f"\n[yellow]Make sure canopy-ui-main is cloned under CANOPY_HOME.",
                     title="Error",
                     title_align="left",
                 ),
