@@ -49,9 +49,6 @@ STACKS = {
     "RDS": {
         "template": "modules/RDS.yaml",
     },
-    "Route53": {
-        "template": "modules/Route53.yaml",
-    },
     "CloudWatch": {
         "template": "modules/CloudWatch.yaml",
     },
