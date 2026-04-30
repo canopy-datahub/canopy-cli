@@ -3,7 +3,7 @@ tell application "iTerm2"
     set newTab to (create tab with default profile)
     tell current session of newTab
       write text "cd $CANOPY_HOME"
-      write text "startdatahubuser"
+      write text "startcanopyuser"
     end tell
   end tell
 end tell
