@@ -141,7 +141,7 @@ class DeployRdsWorker:
         # These derivations match the old script verbatim. Param file has
         # CanopyAppDbName / DbMasterUsername with the same values today.
         db_name = f"{project}_{env}"
-        db_user = f"datahub_postgres_{env}"
+        db_user = f"canopy_postgres_{env}"
 
         db_password = getpass("Enter database master password: ")
         console.print("\n[bold]Testing connection…[/bold]")
