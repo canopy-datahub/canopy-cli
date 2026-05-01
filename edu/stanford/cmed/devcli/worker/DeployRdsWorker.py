@@ -1,17 +1,19 @@
 """
-RDS schema deployment — the contents of the old
-canopy-development/db/postgres/db-create-scripts/deploy_to_rds.py, ported into
-canopycli so deploying the schema no longer requires running a helper script.
+RDS schema deployment.
 
 Invoked from AwsWorker.rds_deploy_schema() via `canopycli aws rds deploy-schema`.
-Reads SQL files from ${CANOPY_HOME}/canopy-development/db/postgres/db-create-scripts/
-and executes them in order against the project's RDS instance.
+Reads SQL files from canopy-cli's bundled assets at:
+    canopy-cli/assets/db/postgres/init/   (canopy app database)
+    canopy-cli/assets/db/keycloak/init/   (keycloak database bootstrap)
+and executes each file in numeric order against the project's RDS instance,
+showing per-file progress with an elapsed/ETA readout.
 """
 
 import json
 import os
 import subprocess
 import sys
+import time
 from getpass import getpass
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -23,18 +25,23 @@ from rich.style import Style
 console = Console()
 
 
-# Relative path under ${CANOPY_HOME} that contains the SQL files.
-SQL_DIR_RELPATH = ("canopy-development", "db", "postgres", "db-create-scripts")
+# Bundled asset roots. __file__ is at
+#   canopy-cli/edu/stanford/cmed/devcli/worker/DeployRdsWorker.py
+# parents[5] resolves to the canopy-cli repo root.
+_ASSETS_DB = Path(__file__).resolve().parents[5] / "assets" / "db"
+POSTGRES_INIT_DIR = _ASSETS_DB / "postgres" / "init"
+KEYCLOAK_INIT_DIR = _ASSETS_DB / "keycloak" / "init"
 
-# Ordered list of SQL scripts to apply.
-SQL_SCRIPTS: List[str] = [
-    "01_create_user_roles.sql",
-    "02_create_base_db.sql",
-    "03_populate_base_tables.sql",
-    "04_populate_variable_tables.sql",
-    "05_populate_test_data.sql",
-    "06_create_keycloak_db.sql",
-]
+# Files in the keycloak phase need extra psql -v variables passed in. Other
+# files run with no variables.
+_KEYCLOAK_VAR_KEYS = ("kc_db", "kc_user", "kc_password")
+
+
+def _fmt_secs(s: float) -> str:
+    if s < 0 or s != s:  # NaN guard
+        return "--:--"
+    s = int(s)
+    return f"{s // 60:02d}:{s % 60:02d}"
 
 
 class DeployRdsWorker:
@@ -67,12 +74,25 @@ class DeployRdsWorker:
         profile = required_env["AWS_PROFILE"]
         region = os.environ.get("AWS_REGION") or "us-east-1"
 
-        sql_dir = Path(canopy_home, *SQL_DIR_RELPATH)
-        if not sql_dir.is_dir():
+        if not POSTGRES_INIT_DIR.is_dir():
             console.print(
                 Panel(
-                    f"[red]SQL directory not found: {sql_dir}"
-                    f"\n[yellow]Make sure the canopy-development repo is cloned under CANOPY_HOME.",
+                    f"[red]Bundled SQL asset dir not found: {POSTGRES_INIT_DIR}"
+                    f"\n[yellow]Re-pull canopy-cli — the assets/db tree is missing.",
+                    title="Error",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            return
+
+        postgres_scripts = sorted(POSTGRES_INIT_DIR.glob("*.sql"))
+        keycloak_scripts = sorted(KEYCLOAK_INIT_DIR.glob("*.sql")) if KEYCLOAK_INIT_DIR.is_dir() else []
+        all_scripts = postgres_scripts + keycloak_scripts
+        if not all_scripts:
+            console.print(
+                Panel(
+                    f"[red]No SQL files found under {POSTGRES_INIT_DIR}",
                     title="Error",
                     title_align="left",
                 ),
@@ -89,7 +109,8 @@ class DeployRdsWorker:
                 f" Env     : {env}\n"
                 f" Region  : {region}\n"
                 f" Profile : {profile}\n"
-                f" SQL dir : {sql_dir}",
+                f" SQL dir : {POSTGRES_INIT_DIR}\n"
+                f" Files   : {len(postgres_scripts)} postgres + {len(keycloak_scripts)} keycloak",
                 title="RDS Schema Deploy",
                 title_align="left",
             ),
@@ -180,32 +201,64 @@ class DeployRdsWorker:
             return
 
         kc_params = DeployRdsWorker._load_keycloak_db_params()
-        psql_vars_for: Dict[str, Dict[str, str]] = {
-            "06_create_keycloak_db.sql": {
-                "kc_db": kc_params["KeycloakDbName"],
-                "kc_user": kc_params["KeycloakDbUsername"],
-                "kc_password": kc_params["KeycloakDbPassword"],
-            },
+        keycloak_vars = {
+            "kc_db": kc_params["KeycloakDbName"],
+            "kc_user": kc_params["KeycloakDbUsername"],
+            "kc_password": kc_params["KeycloakDbPassword"],
         }
 
-        console.print("\n[bold]Running SQL scripts…[/bold]")
-        for script_name in SQL_SCRIPTS:
-            sql_path = sql_dir / script_name
-            if not sql_path.exists():
-                console.print(f"  [yellow]⚠ {script_name} not found, skipping[/yellow]")
-                continue
-            console.print(f"\n[bold]  → {script_name}[/bold]")
-            vars_for_file = psql_vars_for.get(script_name)
+        # Pre-compute total bytes for ETA. ETA estimates remaining time as
+        # (remaining_bytes / bytes_per_second_so_far), recomputed after each
+        # script. It's a heuristic — large INSERT-heavy files run slower per
+        # byte than DDL — but it's far better than nothing.
+        total_files = len(all_scripts)
+        total_bytes = sum(p.stat().st_size for p in all_scripts)
+        bytes_done = 0
+        deploy_start = time.monotonic()
+
+        console.print(
+            f"\n[bold]Running {total_files} SQL scripts "
+            f"({total_bytes/1024:,.0f} KB total)…[/bold]"
+        )
+
+        for idx, sql_path in enumerate(all_scripts, start=1):
+            script_name = sql_path.name
+            size = sql_path.stat().st_size
+            is_keycloak = sql_path.parent == KEYCLOAK_INIT_DIR
+
+            elapsed = time.monotonic() - deploy_start
+            if bytes_done > 0 and elapsed > 0:
+                bps = bytes_done / elapsed
+                eta = max(0.0, (total_bytes - bytes_done) / bps) if bps else 0.0
+                eta_str = f"  ETA {_fmt_secs(eta)}"
+            else:
+                eta_str = ""
+
+            console.print(
+                f"\n[bold cyan][{idx:>3}/{total_files}][/bold cyan] "
+                f"{script_name}  [dim]({size/1024:,.1f} KB"
+                f"{', keycloak' if is_keycloak else ''}){eta_str}[/dim]"
+            )
+
+            vars_for_file = keycloak_vars if is_keycloak else None
+            t0 = time.monotonic()
             ok = DeployRdsWorker._run_psql_file(
                 endpoint, db_user, db_name, db_password, sql_path, vars_for_file
             )
+            dt = time.monotonic() - t0
+
             if ok:
-                console.print(f"  [green]✓ {script_name} completed[/green]")
+                console.print(f"  [green]✓ {script_name}[/green] [dim]({_fmt_secs(dt)})[/dim]")
+                bytes_done += size
             else:
-                console.print(
-                    f"  [red]✗ {script_name} failed — aborting[/red]"
-                )
+                console.print(f"  [red]✗ {script_name} failed — aborting[/red]")
                 sys.exit(1)
+
+        total_elapsed = time.monotonic() - deploy_start
+        console.print(
+            f"\n[dim]Total: {total_files} files, "
+            f"{total_bytes/1024:,.0f} KB in {_fmt_secs(total_elapsed)}[/dim]"
+        )
 
         console.print(
             Panel(

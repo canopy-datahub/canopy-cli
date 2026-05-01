@@ -1,0 +1,70 @@
+-- Data for Name: entity_property_display_setting; Type: TABLE DATA; Schema: public; Owner: canopy_admin
+--
+
+INSERT INTO public.entity_property_display_setting VALUES (89, 4, 'study_overview', 'Representative', 'RAPIDS Link', 10, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (3, 2, 'study_search', 'Title', 'Study Name', 10, false, 10, NULL, NULL, true);
+INSERT INTO public.entity_property_display_setting VALUES (50, 78, 'study_overview', 'Representative', 'Release Date', 40, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (90, 103, 'study_overview', 'Detail', 'Consent/Data Use Limitations', 320, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (11, 10, 'study_search', 'Detail', 'Principal Investigator', 220, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (104, 200, 'variable_overview', 'Title', 'Name', 10, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (105, 201, 'variable_overview', 'Representative', 'Label', 10, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (106, 202, 'variable_overview', 'Representative', 'Section', 20, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (107, 203, 'variable_overview', 'Representative', 'Data Type', 30, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (108, 204, 'variable_overview', 'Representative', 'Variable Category', 40, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (109, 205, 'variable_overview', 'Representative', 'Description', 50, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (110, 206, 'variable_overview', 'Representative', 'Keywords', 60, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (111, 207, 'variable_overview', 'Representative', 'Term', 70, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (112, 212, 'variable_overview', 'Representative', 'From', 80, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (13, 102, 'study_search', 'Detail', 'Sample Size Range', 30, true, 30, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (29, 2, 'study_overview', 'Title', 'Study Name', 10, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (1, 82, 'study_search', 'Representative', 'Study Domain', 50, true, 35, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (16, 22, 'study_search', 'Representative', 'Study Design', 60, true, 40, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (14, 20, 'study_search', 'Representative', 'Data Collection Method', 70, true, 50, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (17, 24, 'study_search', 'Representative', 'NIH Institute / Center', 80, true, 60, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (6, 5, 'study_search', 'Representative', 'Center', 90, true, 70, NULL, NULL, true);
+INSERT INTO public.entity_property_display_setting VALUES (22, 76, 'study_search', 'Representative', 'Has Data Files', 100, true, 80, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (43, 24, 'study_overview', 'Representative', 'NIH Institute/Center', 20, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (32, 5, 'study_overview', 'Representative', 'Center', 30, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (42, 22, 'study_overview', 'Detail', 'Study Design', 160, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (41, 21, 'study_overview', 'Detail', 'Keywords', 150, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (49, 77, 'study_overview', 'Title', 'Study Size (MB)', 30, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (59, 75, 'study_overview', 'Detail', 'Citation', 125, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (61, 95, 'study_overview', 'Detail', 'Study Website URL', 240, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (4, 3, 'study_search', 'Detail', 'Study Description', 100, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (58, 74, 'study_overview', 'Representative', 'DOI', 40, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (51, 79, 'study_overview', 'Representative', 'Updated Date', 50, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (37, 10, 'study_overview', 'Representative', 'Principal Investigator', 60, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (117, 202, 'variable_search', 'Representative', 'Section/Group', 10, true, 10, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (118, 203, 'variable_search', 'Representative', 'Data Type', 20, true, 20, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (119, 214, 'variable_search', 'Detail', 'Study Name', 10, true, 5, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (96, 104, 'study_search', 'Detail', 'Study Variables', NULL, true, 90, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (39, 18, 'study_overview', 'Detail', 'Sample Size', 230, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (80, 18, 'study_search', 'Representative', 'Sample Size', 40, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (30, 3, 'study_overview', 'Representative', 'Study Description', 50, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (48, 76, 'study_overview', 'Representative', 'Has Data Files', 70, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (62, 96, 'study_overview', 'Detail', 'ClinicalTrials.gov URL', 250, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (52, 80, 'study_overview', 'Detail', 'Version Number', 60, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (35, 8, 'study_overview', 'Detail', 'Multi-Center Study', 170, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (10, 9, 'study_search', 'Detail', 'Study Sites', 175, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (36, 9, 'study_overview', 'Detail', 'Study Sites', 175, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (40, 20, 'study_overview', 'Detail', 'Data Collection Method', 140, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (18, 26, 'study_search', 'Detail', 'Data Types', 150, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (63, 97, 'study_overview', 'Detail', 'Publication URL', 260, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (73, 100, 'study_overview', 'Detail', 'Funding Opportunity Announcement (FOA) Number', 300, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (15, 21, 'study_search', 'Detail', 'Keywords', 160, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (60, 82, 'study_overview', 'Detail', 'Study Domain', 100, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (77, 100, 'study_search', 'Detail', 'Funding Opportunity Announcement (FOA) Number', 300, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (33, 6, 'study_overview', 'Detail', 'Study Start Date', 200, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (34, 7, 'study_overview', 'Detail', 'Study End Date', 210, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (20, 49, 'study_search', 'Detail', 'Species', 220, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (46, 49, 'study_overview', 'Detail', 'Species', 220, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (45, 35, 'study_overview', 'Detail', 'Acknowledgement Statement', 290, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (54, 67, 'study_overview', 'Detail', 'NIH Grant or Contract Number(s)', 310, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (83, 67, 'study_search', 'Detail', 'NIH Grant or Contract Number(s)', 310, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (85, 74, 'study_search', 'Detail', 'DOI', 340, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (86, 81, 'study_overview', 'Detail', 'Study Population Focus', 240, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (87, 81, 'study_search', 'Representative', 'Study Population Focus', 30, true, 20, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (44, 26, 'study_overview', 'Detail', 'Data Types', 190, false, NULL, NULL, NULL, false);
+
+
+--

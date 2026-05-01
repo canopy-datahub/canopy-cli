@@ -350,9 +350,9 @@ class AwsWorker(Worker):
     def rds_deploy_schema(dry_run: bool = False):
         """Deploy the RDS schema by delegating to DeployRdsWorker.
 
-        The implementation lives in DeployRdsWorker (the script
-        canopy-development/db/postgres/db-create-scripts/deploy_to_rds.py has
-        been retired; only the SQL files remain on disk, at that same path).
+        SQL init scripts are bundled inside this CLI under
+        canopy-cli/assets/db/{postgres,keycloak}/init/. DeployRdsWorker
+        discovers and executes them in numeric filename order.
         """
         from edu.stanford.cmed.devcli.worker.DeployRdsWorker import DeployRdsWorker
         DeployRdsWorker.deploy(dry_run=dry_run)

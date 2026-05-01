@@ -1,0 +1,26 @@
+-- Role: canopy_admin
+-- DROP ROLE IF EXISTS canopy_admin;
+
+CREATE ROLE canopy_admin WITH
+  LOGIN
+  PASSWORD 'REPLACEME'
+  NOSUPERUSER
+  INHERIT
+  CREATEDB
+  CREATEROLE
+  NOREPLICATION;
+
+GRANT rds_superuser TO canopy_admin WITH ADMIN OPTION;
+
+-- Role: canopy_user
+-- DROP ROLE IF EXISTS canopy_user;
+
+CREATE ROLE canopy_user WITH
+  LOGIN
+  PASSWORD 'REPLACEME'
+  NOSUPERUSER
+  INHERIT
+  NOCREATEDB
+  NOCREATEROLE
+  NOREPLICATION
+  VALID UNTIL 'infinity';
