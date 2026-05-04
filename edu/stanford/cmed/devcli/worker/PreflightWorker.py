@@ -197,6 +197,36 @@ def _expand_sub(template: str, params: Dict[str, str],
     return "".join(out)
 
 
+def _eval_condition(value, params: Dict[str, str]) -> bool:
+    """Evaluate a CloudFormation Condition against resolved parameters.
+    Handles the intrinsics canopy templates actually use: !Equals, !Not,
+    !And, !Or, plus !Ref to a parameter. If we can't decide, default to
+    True so we don't accidentally swallow a real conflict."""
+    if value is None:
+        return True
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, _Intrinsic):
+        if value.tag == "Equals" and isinstance(value.value, list) and len(value.value) == 2:
+            a = _resolve(value.value[0], params)
+            b = _resolve(value.value[1], params)
+            return a == b
+        if value.tag == "Not" and isinstance(value.value, list) and len(value.value) == 1:
+            return not _eval_condition(value.value[0], params)
+        if value.tag == "And" and isinstance(value.value, list):
+            return all(_eval_condition(v, params) for v in value.value)
+        if value.tag == "Or" and isinstance(value.value, list):
+            return any(_eval_condition(v, params) for v in value.value)
+        if value.tag == "Condition" and isinstance(value.value, str):
+            # Reference to another named condition — caller doesn't supply
+            # the conditions table, so we conservatively return True.
+            return True
+    return True
+
+
+_PLACEHOLDER_RE = re.compile(r"replaceme|REPLACEME", re.IGNORECASE)
+
+
 def _resolve_cluster_ref(value, params: Dict[str, str],
                          siblings: Dict[str, str]) -> Optional[str]:
     """Best-effort resolve an ECS service's `Cluster` property to a cluster
@@ -841,6 +871,7 @@ class PreflightWorker:
                                             note=str(exc).splitlines()[0]))
                     continue
             resources = doc.get("Resources", {}) or {}
+            conditions = doc.get("Conditions", {}) or {}
             # Resolve all sibling names within this template up-front so
             # `${OtherLogicalId.SomeNameAttribute}` references can render.
             siblings = _resolve_template_names(resources, params)
@@ -849,6 +880,11 @@ class PreflightWorker:
                 spec = REGISTRY.get(rtype)
                 if not spec:
                     continue   # auto-named or not interesting
+                # Honour `Condition:` — skip resources that CFN won't create.
+                cond_name = body.get("Condition")
+                if cond_name and not _eval_condition(
+                        conditions.get(cond_name), params):
+                    continue
                 props = body.get("Properties", {}) or {}
                 if spec.name_prop not in props:
                     # Property not set => CFN auto-names it; can't conflict.
@@ -863,6 +899,15 @@ class PreflightWorker:
                 f = Finding(stack=stack_name, type=rtype,
                             logical_id=logical_id, name=rendered)
                 f.issues = spec.validate(rendered)
+                # Flag any unfilled placeholders that slipped through the
+                # parameter file (e.g. `replaceme-support@example.com`).
+                # These pass syntactic validation but the deploy will create
+                # something useless. Severity: warn (visible, doesn't block).
+                if _PLACEHOLDER_RE.search(rendered):
+                    f.issues.append(NameIssue(
+                        "warn",
+                        "contains 'replaceme' — likely an unset parameter; "
+                        "edit ${CANOPY_AWS_PARAMETER_FILE} and re-source set-canopy-env.sh"))
                 # ECS::Service: try to identify which cluster it lives in so
                 # the probe can pass --cluster to describe-services.
                 if rtype == "AWS::ECS::Service":
@@ -964,6 +1009,8 @@ class PreflightWorker:
         n_resources = sum(1 for f in findings if f.name)
         n_name_errors = sum(1 for f in findings
                             if any(i.severity == "error" for i in f.issues))
+        n_name_warns = sum(1 for f in findings
+                           if any(i.severity == "warn" for i in f.issues))
         n_exists = sum(1 for f in findings
                        if f.probe and f.probe.status == "exists")
         n_warn = sum(1 for f in findings
@@ -1013,22 +1060,37 @@ class PreflightWorker:
         # length rule trips. Useful when planning a longer name later.
         headroom = PreflightWorker._project_headroom(project, findings)
         console.print()
+        has_blockers = bool(n_name_errors or n_exists)
+        has_warnings = bool(n_name_warns or n_warn)
+        if has_blockers:
+            panel_color = "red"
+        elif has_warnings:
+            panel_color = "yellow"
+        else:
+            panel_color = "green"
+
         console.print(Panel(
             f"[bold]Resources checked:[/bold] {n_resources}\n"
             f"[bold]Name errors:[/bold]      {'[red]' if n_name_errors else '[green]'}{n_name_errors}[/]\n"
+            f"[bold]Name warnings:[/bold]    {'[yellow]' if n_name_warns else '[green]'}{n_name_warns}[/]\n"
             f"[bold]Already in AWS:[/bold]   {'[red]' if n_exists else '[green]'}{n_exists}[/]\n"
             f"[bold]Probe warnings:[/bold]   {'[yellow]' if n_warn else '[green]'}{n_warn}[/]\n"
             f"[bold]Unresolved names:[/bold] {n_unresolved}\n"
             f"[bold]ProjectName headroom:[/bold] {headroom}",
             title=f"Summary — project={project} env={env}",
             title_align="left",
-            style=Style(color="red" if (n_name_errors or n_exists) else "green"),
+            style=Style(color=panel_color),
         ))
 
-        if n_name_errors or n_exists:
+        if has_blockers:
             console.print(
                 "[red]Preflight failed.[/red] Resolve the issues above before running "
                 "[bold]canopycli aws cloudformation deploy[/bold].")
+        elif has_warnings:
+            console.print(
+                "[yellow]Preflight clean of blockers, but warnings above need review.[/yellow] "
+                "Deploy will succeed, but some resources may be functionally wrong "
+                "(e.g. unfilled `replaceme-…` placeholders).")
         else:
             console.print(
                 "[green]Preflight clean.[/green] Install should not collide with existing resources.")
