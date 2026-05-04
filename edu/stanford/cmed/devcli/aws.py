@@ -249,6 +249,26 @@ def ses_verification(
     AwsWorker.ses_verification(identity)
 
 
+# ── Top-level: canopycli aws preflight ───────────────────────────────────
+@app.command(
+    "preflight",
+    help=(
+        "Check that the resources the install would create satisfy AWS naming rules "
+        "and don't already exist in the target account/region. Reports name-length "
+        "violations (e.g. OpenSearch's 28-char ceiling), stale stacks, lingering S3 "
+        "buckets, pending-deletion secrets, and so on. Exits non-zero on any conflict."
+    ),
+)
+def aws_preflight(
+    skip_probe: bool = typer.Option(
+        False, "--skip-probe",
+        help="Run name validation only — skip the AWS describe-* calls.",
+    ),
+):
+    from edu.stanford.cmed.devcli.worker.PreflightWorker import PreflightWorker
+    PreflightWorker.preflight(skip_probe=skip_probe)
+
+
 # ── Top-level: canopycli aws open ────────────────────────────────────────
 @app.command("open", help="Open a project URL in your default browser")
 def aws_open(
