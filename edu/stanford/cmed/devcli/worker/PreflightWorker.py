@@ -542,6 +542,7 @@ def _probe_ecs_service(service: str, cluster: Optional[str],
         return ProbeResult("warn", "no cluster context available")
 
     last_err = ""
+    all_clusters_missing = True   # only stays True if every candidate is absent
     for c in candidates:
         rc, out, err = _probe_subprocess(
             ["ecs", "describe-services",
@@ -549,7 +550,14 @@ def _probe_ecs_service(service: str, cluster: Optional[str],
             region, profile)
         if rc != 0:
             last_err = err
+            # ClusterNotFoundException = the cluster itself doesn't exist,
+            # which means no service can exist in it either — keep looking
+            # at remaining candidates without escalating to a warning.
+            if "ClusterNotFoundException" not in err:
+                all_clusters_missing = False
             continue
+        # Cluster exists; describe-services succeeded.
+        all_clusters_missing = False
         try:
             services = json.loads(out).get("services", [])
             for s in services:
@@ -558,6 +566,9 @@ def _probe_ecs_service(service: str, cluster: Optional[str],
                                        f"in cluster {c} (status {s.get('status')})")
         except json.JSONDecodeError:
             continue
+    # Reached only if no candidate cluster contained the service.
+    if all_clusters_missing:
+        return ProbeResult("absent", "(parent cluster doesn't exist yet)")
     if last_err:
         return ProbeResult("warn",
                            last_err.strip().splitlines()[-1])
