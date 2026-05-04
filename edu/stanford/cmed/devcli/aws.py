@@ -224,6 +224,18 @@ def opensearch_endpoint():
     AwsWorker.opensearch_endpoint()
 
 
+@opensearch_app.command(
+    "check-service-role",
+    help=(
+        "Verify that AWSServiceRoleForAmazonOpenSearchService exists in the account "
+        "(Bootstrap stack creates it). Without this role, the OpenSearch stack deploy "
+        "fails with `Invalid request` on fresh AWS accounts."
+    ),
+)
+def opensearch_check_service_role():
+    AwsWorker.opensearch_check_service_role()
+
+
 # ── Sub-group: canopycli aws ses ─────────────────────────────────────────
 ses_app = typer.Typer(no_args_is_help=True)
 app.add_typer(ses_app, name="ses", help="SES (Simple Email Service) operations...")

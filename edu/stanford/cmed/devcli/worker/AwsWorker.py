@@ -720,6 +720,90 @@ class AwsWorker(Worker):
             title=f"OpenSearch VPC endpoint for '{domain}'",
         )
 
+    SERVICE_LINKED_ROLE = "AWSServiceRoleForAmazonOpenSearchService"
+
+    @staticmethod
+    def opensearch_check_service_role():
+        """Check that the AWSServiceRoleForAmazonOpenSearchService IAM
+        service-linked role exists in the account. Without it, the OpenSearch
+        stack deploy fails with `Invalid request` on fresh AWS accounts.
+
+        The Bootstrap stack normally creates this role; this command
+        confirms it's actually there before you run `aws cloudformation
+        deploy OpenSearch`."""
+        if not AwsWorker._check_env():
+            return
+
+        profile = AwsWorker._get_env("AWS_PROFILE")
+        region = AwsWorker._get_env("AWS_REGION") or "us-east-1"
+        role = AwsWorker.SERVICE_LINKED_ROLE
+
+        cmd = ["aws", "iam", "get-role",
+               "--role-name", role,
+               "--profile", profile,
+               "--region", region,
+               "--output", "json",
+               "--no-cli-pager"]
+
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        except FileNotFoundError:
+            console.print("[red]aws CLI not found on PATH.[/red]")
+            sys.exit(1)
+
+        if r.returncode == 0:
+            try:
+                arn = json.loads(r.stdout).get("Role", {}).get("Arn", "")
+            except json.JSONDecodeError:
+                arn = ""
+            console.print(
+                Panel(
+                    f"[green]✓ Service-linked role exists.[/green]\n"
+                    f"[yellow]Role ARN:[/yellow] [cyan]{arn}[/cyan]\n"
+                    f"\nOpenSearch stack deploy can proceed.",
+                    title=f"IAM: {role}",
+                    title_align="left",
+                ),
+                style=Style(color="green"),
+            )
+            return
+
+        err = (r.stderr or r.stdout or "").strip()
+        if "NoSuchEntity" in err:
+            console.print(
+                Panel(
+                    f"[red]✗ Service-linked role NOT FOUND.[/red]\n\n"
+                    f"[yellow]Without this role, the OpenSearch stack deploy will fail "
+                    f"with `Invalid request`.[/yellow]\n\n"
+                    f"[bold]Fix it by running the Bootstrap stack:[/bold]\n"
+                    f"  canopycli aws cloudformation deploy Bootstrap\n\n"
+                    f"[dim]Or, if you already deployed Bootstrap and the role is missing, "
+                    f"create it manually with:\n"
+                    f"  aws iam create-service-linked-role \\\n"
+                    f"    --aws-service-name opensearchservice.amazonaws.com \\\n"
+                    f"    --profile {profile}[/dim]",
+                    title=f"IAM: {role}",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            sys.exit(1)
+
+        # Some other failure (permissions, network, …).
+        console.print(
+            Panel(
+                f"[yellow]⚠ Could not verify the role.[/yellow]\n\n"
+                f"aws iam get-role exited with code {r.returncode}:\n"
+                f"[dim]{err}[/dim]\n\n"
+                f"This usually indicates an IAM permission gap. Fix the underlying "
+                f"issue and re-run.",
+                title=f"IAM: {role}",
+                title_align="left",
+            ),
+            style=Style(color="yellow"),
+        )
+        sys.exit(2)
+
     # ---- SES --------------------------------------------------------------
 
     @staticmethod
