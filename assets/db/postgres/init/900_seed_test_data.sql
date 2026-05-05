@@ -73,18 +73,17 @@ INSERT INTO news (id, title, slug, type_id, description, start_date, expiration_
  'The National Institutes of Health (NIH) Rapid Acceleration of Diagnostics Data Hub (RADx® Data Hub) announces today major functionality and design upgrades to its cloud-enabled platform. These upgrades will provide researchers more dynamic access to explore data from over 150 studies from RADx-rad, RADx-UP, RADx Tech, and RADx DHT programs. Researchers will also be gaining access to an even more robust analytics platform with tools such as Jupyter notebooks, R, Python, and SAS Viya.',
  CURRENT_DATE - INTERVAL '10 days',
  CURRENT_DATE + INTERVAL '200 days',
- CURRENT_TIMESTAMP),
+ CURRENT_TIMESTAMP);
 
+INSERT INTO funding (id, title, slug, description, release_date, expiration_date, created_at) VALUES
 -- Funding Opportunities
-(3, 'Notice of Funding Opportunity (NOFO): NIH Research Software Engineer (RSE) Award (R50 Clinical Trials Not Allowed)', 'radx-funding-2024',
- 1, -- type_id for funding opportunities
+(1, 'Notice of Funding Opportunity (NOFO): NIH Research Software Engineer (RSE) Award (R50 Clinical Trials Not Allowed)', 'radx-funding-2024',
  'The purpose of this Notice of Funding Opportunity (NOFO) (RFA-OD-24-011) is to support the ability of exceptional Research Software Engineers (RSEs) to contribute their skills in the development and dissemination of NIH-funded biomedical, clinical, behavioral or health related research software, tools, and algorithms as well as to the training of prospective users of these tools.',
  CURRENT_DATE - INTERVAL '2 days',
  CURRENT_DATE + INTERVAL '28 days',
  CURRENT_TIMESTAMP),
 
-(4, 'Notice of Funding Opportunity (NOFO): Building Sustainable Software Tools for Open Science (R03 Clinical Trial Not Allowed)', 'covid-research-grants',
- 1, -- type_id for funding opportunities
+(2, 'Notice of Funding Opportunity (NOFO): Building Sustainable Software Tools for Open Science (R03 Clinical Trial Not Allowed)', 'covid-research-grants',
  'The purpose of this Notice of funding opportunity (NOFO) (RFA-OD-24-010) is to enhance the sustainability and impact of research software tools by enabling the use of best practices and design principles in software development and by leveraging continuing advances in computing.',
  CURRENT_DATE - INTERVAL '15 days',
  CURRENT_DATE + INTERVAL '15 days',
