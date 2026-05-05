@@ -71,7 +71,6 @@ ALTER TABLE ONLY public.institution
 -- Name: TABLE institution; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.institution TO canopy_user;
 
 
 --

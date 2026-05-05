@@ -1,5 +1,5 @@
 -- TOC entry 333 (class 1259 OID 22387)
--- Name: view_study; Type: VIEW; Schema: public; Owner: canopy_user
+-- Name: view_study; Type: VIEW; Schema: public; Owner: canopy_admin
 --
 
 CREATE VIEW public.view_study AS
@@ -124,7 +124,7 @@ CREATE VIEW public.view_study AS
 	'::text) crosstab(study_id integer, title text, description text, center text, studystartdate text, studyenddate text, is_multi_center text, multi_center_sites text, pi_name text, estimated_participants text, source text, subject text, types text, institutes_supporting_study text, data_general_types text, acknowledgement_statement text, data_species text, disease_specific_group text, disease_specific_related_conditions text, general_research_group text, grant_number text, health_biomed_group text, "study_DOI" text, study_citation text, has_data_files text, actual_study_size text, release_date text, updated_at text, study_version text, study_population_focus text, topics text, "study_website_URL" text, "CT_URL" text, "publication_URL" text, "FOA_number" text, "FOA_URL" text, estimated_participant_range text)) p ON ((s.id = p.study_id)));
 
 
-ALTER VIEW public.view_study OWNER TO canopy_user;
+ALTER VIEW public.view_study OWNER TO canopy_admin;
 
 --
 -- TOC entry 385 (class 1259 OID 29109)
@@ -289,7 +289,7 @@ ALTER VIEW public.view_variables OWNER TO canopy_admin;
 
 --
 -- TOC entry 410 (class 1259 OID 42312)
--- Name: view_study_all; Type: VIEW; Schema: public; Owner: canopy_user
+-- Name: view_study_all; Type: VIEW; Schema: public; Owner: canopy_admin
 --
 
 CREATE VIEW public.view_study_all AS
@@ -612,7 +612,7 @@ CREATE VIEW public.view_study_all AS
 	'::text) crosstab(study_id integer, title text, description text, "RAPIDS_link" text, center text, studystartdate text, studyenddate text, is_multi_center text, multi_center_sites text, pi_name text, pi_email text, pi_assistant_name text, pi_assistant_email text, pi_institution text, pi_sign_date text, po_name text, officer_sign_date text, estimated_participants text, public_access_data text, source text, subject text, types text, unrestricted_access text, institutes_supporting_study text, needs_institutional_certifications text, data_general_types text, data_genomic text, data_genotype text, data_sample_types text, data_sequencing text, user_agreement_accepted text, data_policy_accepted text, reject_comments text, study_approved_date text, acknowledgement_statement text, aggregate_appropriate_for_general_use text, awardee text, consent_to_add_aggregate text, consent_to_add_individual text, controlled_access text, controlled_access_data text, data_access_points text, data_analyses text, data_array_data text, data_from_repository_name text, data_phenotype text, data_sample_collection text, data_sharing_info text, data_species text, data_storage_size text, data_submission_date text, data_submission_method text, data_submission_timeline_details text, data_target_delivery_date text, data_target_release_date text, disease_specific_group text, disease_specific_related_conditions text, eua text, expected_data_format text, general_research_group text, geno_seq_platform_info text, geno_seq_platform_url text, geno_seq_platform_probes text, geno_seq_platform_vendor text, geno_seq_platform_description text, geno_seq_platform_name_version text, grant_number text, has_era_account text, has_ic text, health_biomed_group text, individual_appropriate_for_general_use text, other_group_description text, project_number text, "study_DOI" text, study_citation text, has_data_files text, actual_study_size text, release_date text, updated_at text, study_version text, study_population_focus text, topics text, types_other_specify text, source_other_specify text, data_general_types_other_specify text, data_genomic_other_specify text, data_phenotype_other_specify text, data_sample_types_other_specify text, data_genotype_other_specify text, data_sequencing_other_specify text, data_analyses_other_specify text, data_array_data_other_specify text, data_access_points_other text, topics_other_specify text, "study_website_URL" text, "CT_URL" text, "publication_URL" text, access_type text, data_access_type text, "FOA_number" text, "FOA_URL" text, estimated_participant_range text, data_use_limitations text)) p ON ((s.id = p.study_id)));
 
 
-ALTER VIEW public.view_study_all OWNER TO canopy_user;
+ALTER VIEW public.view_study_all OWNER TO canopy_admin;
 
 
 CREATE VIEW public.view_study_for_es AS
@@ -680,7 +680,7 @@ ALTER VIEW public.view_study_for_es OWNER TO canopy_admin;
 
 --
 -- TOC entry 326 (class 1259 OID 22038)
--- Name: view_study_mta_import; Type: VIEW; Schema: public; Owner: canopy_user
+-- Name: view_study_mta_import; Type: VIEW; Schema: public; Owner: canopy_admin
 --
 
 CREATE VIEW public.view_study_mta_import AS
@@ -895,7 +895,7 @@ CREATE VIEW public.view_study_mta_import AS
 	'::text) crosstab(study_id integer, title text, description text, is_multi_center text, multi_center_sites text, pi_name text, pi_email text, pi_assistant_name text, pi_assistant_email text, pi_institution text, pi_sign_date text, po_name text, officer_sign_date text, estimated_participants text, types text, institutes_supporting_study text, needs_institutional_certifications text, data_general_types text, data_genomic text, data_genotype text, data_sample_types text, data_sequencing text, acknowledgement_statement text, aggregate_appropriate_for_general_use text, consent_to_add_aggregate text, consent_to_add_individual text, data_access_points text, data_analyses text, data_array_data text, data_from_repository_name text, data_phenotype text, data_sample_collection text, data_sharing_info text, data_species text, data_storage_size text, data_submission_date text, data_submission_method text, data_submission_timeline_details text, data_target_delivery_date text, data_target_release_date text, disease_specific_group text, disease_specific_related_conditions text, general_research_group text, geno_seq_platform_info text, geno_seq_platform_url text, geno_seq_platform_probes text, geno_seq_platform_vendor text, geno_seq_platform_description text, geno_seq_platform_name_version text, grant_number text, has_era_account text, has_ic text, health_biomed_group text, individual_appropriate_for_general_use text, other_group_description text, types_other_specify text, data_general_types_other_specify text, data_genomic_other_specify text, data_phenotype_other_specify text, data_sample_types_other_specify text, data_genotype_other_specify text, data_sequencing_other_specify text, data_analyses_other_specify text, data_array_data_other_specify text, data_access_points_other text, access_type text, data_access_type text)) p ON ((s.id = p.study_id)));
 
 
-ALTER VIEW public.view_study_mta_import OWNER TO canopy_user;
+ALTER VIEW public.view_study_mta_import OWNER TO canopy_admin;
 
 --
 -- TOC entry 325 (class 1259 OID 22023)
@@ -1058,7 +1058,6 @@ ALTER VIEW public.view_variable_overview_display OWNER TO canopy_admin;
 -- Name: TABLE view_current_data_file; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.view_current_data_file TO canopy_user;
 
 
 --
@@ -1067,7 +1066,6 @@ GRANT ALL ON TABLE public.view_current_data_file TO canopy_user;
 -- Name: TABLE view_current_hub_content; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.view_current_hub_content TO canopy_user;
 
 
 --
@@ -1076,7 +1074,6 @@ GRANT ALL ON TABLE public.view_current_hub_content TO canopy_user;
 -- Name: TABLE view_current_hub_content_data; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.view_current_hub_content_data TO canopy_user;
 
 
 --
@@ -1085,7 +1082,6 @@ GRANT ALL ON TABLE public.view_current_hub_content_data TO canopy_user;
 -- Name: TABLE view_study_property_value_display; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.view_study_property_value_display TO canopy_user;
 
 
 --
@@ -1094,7 +1090,6 @@ GRANT ALL ON TABLE public.view_study_property_value_display TO canopy_user;
 -- Name: TABLE view_submission_activity; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.view_submission_activity TO canopy_user;
 
 
 --
@@ -1103,7 +1098,6 @@ GRANT ALL ON TABLE public.view_submission_activity TO canopy_user;
 -- Name: TABLE view_user_population; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.view_user_population TO canopy_user;
 
 
 --
@@ -1112,7 +1106,6 @@ GRANT ALL ON TABLE public.view_user_population TO canopy_user;
 -- Name: TABLE view_user_role; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.view_user_role TO canopy_user;
 
 
 --
@@ -1121,7 +1114,6 @@ GRANT ALL ON TABLE public.view_user_role TO canopy_user;
 -- Name: TABLE view_variable_overview_display; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.view_variable_overview_display TO canopy_user;
 
 
 --

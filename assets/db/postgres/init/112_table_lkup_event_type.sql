@@ -58,7 +58,6 @@ ALTER TABLE ONLY public.lkup_event_type
 -- Name: TABLE lkup_event_type; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_event_type TO canopy_user;
 
 
 --

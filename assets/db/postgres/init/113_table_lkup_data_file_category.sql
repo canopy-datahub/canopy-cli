@@ -61,7 +61,6 @@ ALTER TABLE ONLY public.lkup_data_file_category
 -- Name: TABLE lkup_data_file_category; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_data_file_category TO canopy_user;
 
 
 --

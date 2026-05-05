@@ -22,7 +22,6 @@ ALTER TABLE canopy_history.sas_data_file_history OWNER TO canopy_admin;
 -- Name: TABLE sas_data_file_history; Type: ACL; Schema: canopy_history; Owner: canopy_admin
 --
 
-GRANT SELECT,INSERT ON TABLE canopy_history.sas_data_file_history TO canopy_user;
 
 
 --

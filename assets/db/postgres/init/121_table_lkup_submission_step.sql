@@ -58,7 +58,6 @@ ALTER TABLE ONLY public.lkup_submission_step
 -- Name: TABLE lkup_submission_step; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_submission_step TO canopy_user;
 
 
 --

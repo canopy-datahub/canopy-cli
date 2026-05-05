@@ -64,7 +64,6 @@ ALTER TABLE ONLY public.newsletter
 -- Name: TABLE newsletter; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.newsletter TO canopy_user;
 
 
 --

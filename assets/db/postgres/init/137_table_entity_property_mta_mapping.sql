@@ -62,7 +62,6 @@ ALTER TABLE ONLY public.entity_property_mta_mapping
 -- Name: TABLE entity_property_mta_mapping; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.entity_property_mta_mapping TO canopy_user;
 
 
 --

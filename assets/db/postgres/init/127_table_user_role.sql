@@ -63,7 +63,6 @@ ALTER TABLE ONLY public.user_role
 -- Name: TABLE user_role; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.user_role TO canopy_user;
 
 
 --

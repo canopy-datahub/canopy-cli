@@ -59,7 +59,6 @@ ALTER TABLE ONLY public.lkup_role
 -- Name: TABLE lkup_role; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_role TO canopy_user;
 
 
 --

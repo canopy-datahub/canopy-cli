@@ -69,7 +69,6 @@ ALTER TABLE ONLY public.s3_file
 -- Name: TABLE s3_file; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.s3_file TO canopy_user;
 
 
 --

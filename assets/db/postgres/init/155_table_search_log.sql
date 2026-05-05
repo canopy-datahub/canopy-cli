@@ -58,7 +58,6 @@ ALTER TABLE ONLY public.search_log
 -- Name: TABLE search_log; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.search_log TO canopy_user;
 
 
 --

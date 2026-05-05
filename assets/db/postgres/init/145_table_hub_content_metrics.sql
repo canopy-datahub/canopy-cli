@@ -76,7 +76,6 @@ ALTER TABLE ONLY public.hub_content_metrics
 -- Name: TABLE hub_content_metrics; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.hub_content_metrics TO canopy_user;
 
 
 --

@@ -66,7 +66,6 @@ ALTER TABLE ONLY public.entity_property
 -- Name: TABLE entity_property; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.entity_property TO canopy_user;
 
 
 --

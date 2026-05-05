@@ -26,7 +26,6 @@ ALTER TABLE ONLY public.lkup_variable_category
 -- Name: TABLE lkup_variable_category; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_variable_category TO canopy_user;
 
 
 --

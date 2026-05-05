@@ -75,7 +75,6 @@ ALTER TABLE ONLY public.users
 -- Name: TABLE users; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.users TO canopy_user;
 
 
 --

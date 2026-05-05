@@ -22,7 +22,6 @@ ALTER TABLE canopy_history.user_file_upload_history OWNER TO canopy_admin;
 -- Name: TABLE user_file_upload_history; Type: ACL; Schema: canopy_history; Owner: canopy_admin
 --
 
-GRANT SELECT,INSERT ON TABLE canopy_history.user_file_upload_history TO canopy_user;
 
 
 --

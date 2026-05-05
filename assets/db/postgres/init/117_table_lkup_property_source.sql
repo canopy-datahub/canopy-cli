@@ -59,7 +59,6 @@ ALTER TABLE ONLY public.lkup_property_source
 -- Name: TABLE lkup_property_source; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_property_source TO canopy_user;
 
 
 --

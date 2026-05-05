@@ -64,7 +64,6 @@ ALTER TABLE ONLY public.user_referrer
 -- Name: TABLE user_referrer; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.user_referrer TO canopy_user;
 
 
 --

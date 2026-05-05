@@ -61,7 +61,6 @@ ALTER TABLE ONLY public.lkup_referrer
 -- Name: TABLE lkup_referrer; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_referrer TO canopy_user;
 
 
 --

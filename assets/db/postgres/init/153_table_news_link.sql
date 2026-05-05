@@ -65,7 +65,6 @@ ALTER TABLE ONLY public.news_link
 -- Name: TABLE news_link; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.news_link TO canopy_user;
 
 
 --

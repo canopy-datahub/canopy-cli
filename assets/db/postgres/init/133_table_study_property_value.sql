@@ -65,7 +65,6 @@ ALTER TABLE ONLY public.study_property_value
 -- Name: TABLE study_property_value; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.study_property_value TO canopy_user;
 
 
 --

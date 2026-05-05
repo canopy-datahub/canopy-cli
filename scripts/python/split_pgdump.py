@@ -342,6 +342,19 @@ def main():
         default="000_preamble.sql",
         help="Filename for pg_dump preamble (SET commands etc.) — default: 000_preamble.sql",
     )
+    ap.add_argument(
+        "--app-user",
+        default="canopy_user",
+        help=(
+            "Literal app-user role name as it appears in the source pg_dump "
+            "output (default: canopy_user). All `GRANT … TO <app-user>;` lines "
+            "in per-table / per-history / views files are stripped, and any "
+            "`ALTER … OWNER TO <app-user>;` is rewritten to `OWNER TO "
+            "canopy_admin;`. The intent is that 600_grants.sql alone owns "
+            "every grant to the app user (parameterized via :'app_user'), so "
+            "the per-table files are role-name-neutral."
+        ),
+    )
     args = ap.parse_args()
 
     if not args.input.is_file():
@@ -378,6 +391,39 @@ def main():
         block_count += 1
         if target == "999_misc.sql":
             misc_blocks.append((name, obj_type))
+
+    # Post-process per-table / per-history / views buckets: strip per-object
+    # GRANTs to the app user (600_grants.sql does broad parameterized grants
+    # via :'app_user'), and normalise object ownership to canopy_admin.
+    strip_re = re.compile(rf"^GRANT .* TO {re.escape(args.app_user)};\s*$")
+    owner_re = re.compile(
+        rf"^(ALTER (?:VIEW|TABLE|SEQUENCE|MATERIALIZED VIEW) .* OWNER TO )"
+        rf"{re.escape(args.app_user)}(;\s*)$"
+    )
+    cleaned_grants = 0
+    cleaned_owners = 0
+    for filename, lines in list(buckets.items()):
+        if not (filename.startswith(("1", "2")) and "_table_" in filename
+                or filename.startswith(("2",)) and "_history_" in filename
+                or filename == "400_views.sql"):
+            continue
+        new_lines = []
+        for line in lines:
+            if strip_re.match(line):
+                cleaned_grants += 1
+                continue
+            m = owner_re.match(line)
+            if m:
+                line = f"{m.group(1)}canopy_admin{m.group(2)}"
+                cleaned_owners += 1
+            new_lines.append(line)
+        buckets[filename] = new_lines
+    if cleaned_grants or cleaned_owners:
+        print(
+            f"\nPost-process: stripped {cleaned_grants} `GRANT … TO "
+            f"{args.app_user};` lines, rewrote {cleaned_owners} "
+            f"`OWNER TO {args.app_user};` → `OWNER TO canopy_admin;`."
+        )
 
     print(f"\nWriting {len(buckets)} files to {args.output_dir}/")
     written = []

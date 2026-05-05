@@ -60,7 +60,6 @@ ALTER TABLE ONLY public.lkup_resolution_type
 -- Name: TABLE lkup_resolution_type; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_resolution_type TO canopy_user;
 
 
 --

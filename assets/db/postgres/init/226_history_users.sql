@@ -22,7 +22,6 @@ ALTER TABLE canopy_history.users_history OWNER TO canopy_admin;
 -- Name: TABLE users_history; Type: ACL; Schema: canopy_history; Owner: canopy_admin
 --
 
-GRANT SELECT,INSERT ON TABLE canopy_history.users_history TO canopy_user;
 
 
 --

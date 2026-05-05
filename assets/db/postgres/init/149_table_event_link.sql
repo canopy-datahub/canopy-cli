@@ -65,7 +65,6 @@ ALTER TABLE ONLY public.event_link
 -- Name: TABLE event_link; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.event_link TO canopy_user;
 
 
 --

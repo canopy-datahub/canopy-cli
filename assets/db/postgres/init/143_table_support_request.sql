@@ -77,7 +77,6 @@ ALTER TABLE ONLY public.support_request
 -- Name: TABLE support_request; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.support_request TO canopy_user;
 
 
 --

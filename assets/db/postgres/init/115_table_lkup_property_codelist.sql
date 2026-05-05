@@ -59,7 +59,6 @@ ALTER TABLE ONLY public.lkup_property_codelist
 -- Name: TABLE lkup_property_codelist; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_property_codelist TO canopy_user;
 
 
 --

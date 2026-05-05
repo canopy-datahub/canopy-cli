@@ -66,7 +66,6 @@ ALTER TABLE ONLY public.user_file_upload
 -- Name: TABLE user_file_upload; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.user_file_upload TO canopy_user;
 
 
 --

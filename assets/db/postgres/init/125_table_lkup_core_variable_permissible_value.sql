@@ -61,7 +61,6 @@ ALTER TABLE ONLY public.lkup_core_variable_permissible_value
 -- Name: TABLE lkup_core_variable_permissible_value; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_core_variable_permissible_value TO canopy_user;
 
 
 --

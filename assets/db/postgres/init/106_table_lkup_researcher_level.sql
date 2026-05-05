@@ -59,7 +59,6 @@ ALTER TABLE ONLY public.lkup_researcher_level
 -- Name: TABLE lkup_researcher_level; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.lkup_researcher_level TO canopy_user;
 
 
 --

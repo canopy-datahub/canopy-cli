@@ -70,7 +70,6 @@ ALTER TABLE ONLY public.datafile_harmonization_metrics
 -- Name: TABLE datafile_harmonization_metrics; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.datafile_harmonization_metrics TO canopy_user;
 
 
 --

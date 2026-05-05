@@ -67,7 +67,6 @@ ALTER TABLE ONLY public.study_harmonization_metrics
 -- Name: TABLE study_harmonization_metrics; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.study_harmonization_metrics TO canopy_user;
 
 
 --

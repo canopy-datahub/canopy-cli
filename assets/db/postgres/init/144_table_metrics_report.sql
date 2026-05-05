@@ -60,7 +60,6 @@ ALTER TABLE ONLY public.metrics_report
 -- Name: TABLE metrics_report; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.metrics_report TO canopy_user;
 
 
 --

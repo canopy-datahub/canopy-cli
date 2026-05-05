@@ -71,7 +71,6 @@ ALTER TABLE ONLY public.data_submission
 -- Name: TABLE data_submission; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.data_submission TO canopy_user;
 
 
 --

@@ -70,7 +70,6 @@ ALTER TABLE ONLY public.variables
 -- Name: TABLE variables; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.variables TO canopy_user;
 
 
 --

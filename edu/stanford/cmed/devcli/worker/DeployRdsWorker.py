@@ -279,12 +279,14 @@ class DeployRdsWorker:
                 f"{', keycloak' if is_keycloak else ''}){eta_str}[/dim]"
             )
 
+            # Every postgres init file receives the application-user vars
+            # (`:'app_user'` etc.). Files that don't reference them just
+            # ignore the extra `-v` flags. The keycloak file gets a
+            # different set — its psql vars are kc_user / kc_password etc.
             if is_keycloak:
                 vars_for_file = keycloak_vars
-            elif script_name == "010_roles.sql":
-                vars_for_file = roles_vars
             else:
-                vars_for_file = None
+                vars_for_file = roles_vars
             t0 = time.monotonic()
             ok = DeployRdsWorker._run_psql_file(
                 endpoint, db_user, db_name, db_password, sql_path, vars_for_file

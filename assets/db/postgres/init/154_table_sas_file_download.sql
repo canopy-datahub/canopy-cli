@@ -60,7 +60,6 @@ ALTER TABLE ONLY public.sas_file_download
 -- Name: TABLE sas_file_download; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.sas_file_download TO canopy_user;
 
 
 --

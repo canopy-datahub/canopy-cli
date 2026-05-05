@@ -86,7 +86,6 @@ ALTER TABLE ONLY public.data_file
 -- Name: TABLE data_file; Type: ACL; Schema: public; Owner: canopy_admin
 --
 
-GRANT ALL ON TABLE public.data_file TO canopy_user;
 
 
 --
