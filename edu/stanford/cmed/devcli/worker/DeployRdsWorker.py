@@ -222,6 +222,30 @@ class DeployRdsWorker:
             "kc_password": kc_params["KeycloakDbPassword"],
         }
 
+        # 010_roles.sql is parameterized: the application user's name and
+        # password come from CANOPY_AWS_PARAMETER_FILE so the role on RDS and
+        # the value in the application secret never drift. Aborts if either
+        # is missing or still the literal placeholder — better to fail here
+        # than create a role that no service can authenticate against.
+        app_user = DeployRdsWorker._param("CanopyDbUsername")
+        app_user_password = DeployRdsWorker._param("CanopyDbPassword")
+        if not app_user or app_user in {"REPLACEME", ""}:
+            console.print(
+                "[red]CanopyDbUsername is missing or still 'REPLACEME' in "
+                f"{os.environ.get('CANOPY_AWS_PARAMETER_FILE', '')} — set "
+                "it before running deploy-schema.[/red]")
+            sys.exit(1)
+        if not app_user_password or app_user_password in {"REPLACEME", ""}:
+            console.print(
+                "[red]CanopyDbPassword is missing or still 'REPLACEME' in "
+                f"{os.environ.get('CANOPY_AWS_PARAMETER_FILE', '')} — set "
+                "it before running deploy-schema.[/red]")
+            sys.exit(1)
+        roles_vars = {
+            "app_user": app_user,
+            "app_user_password": app_user_password,
+        }
+
         # Pre-compute total bytes for ETA. ETA estimates remaining time as
         # (remaining_bytes / bytes_per_second_so_far), recomputed after each
         # script. It's a heuristic — large INSERT-heavy files run slower per
@@ -255,7 +279,12 @@ class DeployRdsWorker:
                 f"{', keycloak' if is_keycloak else ''}){eta_str}[/dim]"
             )
 
-            vars_for_file = keycloak_vars if is_keycloak else None
+            if is_keycloak:
+                vars_for_file = keycloak_vars
+            elif script_name == "010_roles.sql":
+                vars_for_file = roles_vars
+            else:
+                vars_for_file = None
             t0 = time.monotonic()
             ok = DeployRdsWorker._run_psql_file(
                 endpoint, db_user, db_name, db_password, sql_path, vars_for_file
