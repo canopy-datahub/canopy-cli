@@ -282,27 +282,148 @@ class AwsWorker(Worker):
 
     @staticmethod
     def status_all():
-        """Check the status of all known CloudFormation stacks."""
+        """Show every CloudFormation stack belonging to this project+env, with
+        status, creation time, and last-updated time. Flags stacks that are in
+        a non-success state, plus any expected stack that is missing from the
+        account altogether.
+
+        Replaces the equivalent raw AWS CLI one-liner::
+
+            aws cloudformation list-stacks \\
+              --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE \\
+              --query "sort_by(StackSummaries[?contains(StackName, \\`<project>\\`)], &StackName)[].{Name:StackName,Status:StackStatus,Created:CreationTime}" \\
+              --output table
+
+        …with three additions: filters to the current ${CANOPY_ENV} (not just
+        project), keeps non-success stacks visible (so a stuck ROLLBACK_COMPLETE
+        shows up red), and diffs against the canonical 16-stack list so a
+        missing stack is reported instead of silently dropped.
+        """
         if not AwsWorker._check_env():
             return
 
         project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
         env = AwsWorker._get_env("CANOPY_ENV")
         profile = AwsWorker._get_env("AWS_PROFILE")
+        region = AwsWorker._get_env("AWS_REGION") or "us-east-1"
 
-        cmd = (
-            f"aws cloudformation list-stacks"
-            f" --stack-status-filter CREATE_COMPLETE UPDATE_COMPLETE ROLLBACK_COMPLETE CREATE_IN_PROGRESS UPDATE_IN_PROGRESS"
-            f" --query \"StackSummaries[?contains(StackName, '{project}')].{{Name:StackName,Status:StackStatus,Updated:LastUpdatedTime}}\""
-            f" --output table"
-            f" --no-cli-pager"
-            f" --profile {profile}"
+        # Pull every stack that's currently in any non-deleted status. We
+        # deliberately include ROLLBACK_COMPLETE / *_FAILED so they're visible
+        # — the AWS one-liner that filters to CREATE/UPDATE_COMPLETE only
+        # silently hides exactly the stacks the user most needs to see.
+        wanted_statuses = [
+            "CREATE_IN_PROGRESS", "CREATE_COMPLETE", "CREATE_FAILED",
+            "ROLLBACK_IN_PROGRESS", "ROLLBACK_COMPLETE", "ROLLBACK_FAILED",
+            "DELETE_IN_PROGRESS", "DELETE_FAILED",
+            "UPDATE_IN_PROGRESS", "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS",
+            "UPDATE_COMPLETE", "UPDATE_FAILED",
+            "UPDATE_ROLLBACK_IN_PROGRESS", "UPDATE_ROLLBACK_FAILED",
+            "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS",
+            "UPDATE_ROLLBACK_COMPLETE", "REVIEW_IN_PROGRESS",
+            "IMPORT_IN_PROGRESS", "IMPORT_COMPLETE",
+            "IMPORT_ROLLBACK_IN_PROGRESS", "IMPORT_ROLLBACK_FAILED",
+            "IMPORT_ROLLBACK_COMPLETE",
+        ]
+        cmd = ["aws", "cloudformation", "list-stacks",
+               "--stack-status-filter", *wanted_statuses,
+               "--profile", profile, "--region", region,
+               "--output", "json", "--no-cli-pager"]
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        except FileNotFoundError:
+            console.print("[red]aws CLI not found on PATH.[/red]")
+            return
+        if r.returncode != 0:
+            console.print(Panel(
+                f"[red]list-stacks failed:[/red]\n"
+                f"{(r.stderr or r.stdout or '').strip()}",
+                title="CloudFormation status",
+                title_align="left"),
+                style=Style(color="red"))
+            return
+
+        try:
+            summaries = json.loads(r.stdout).get("StackSummaries", [])
+        except json.JSONDecodeError:
+            summaries = []
+
+        # Filter to this project+env and sort by name.
+        prefix = f"{project}-"
+        suffix = f"-{env}"
+        actual = sorted(
+            (s for s in summaries
+             if s.get("StackName", "").startswith(prefix)
+             and s.get("StackName", "").endswith(suffix)),
+            key=lambda s: s.get("StackName", ""),
         )
 
-        Worker.execute_generic_shell_commands(
-            [cmd],
-            title=f"All stacks for {project}",
-        )
+        expected_names = {f"{project}-{name}-{env}" for name in STACKS.keys()}
+        actual_names = {s.get("StackName") for s in actual}
+        missing = sorted(expected_names - actual_names)
+        unexpected = sorted(actual_names - expected_names)
+
+        success_states = {"CREATE_COMPLETE", "UPDATE_COMPLETE",
+                          "UPDATE_ROLLBACK_COMPLETE_CLEANUP_IN_PROGRESS"}
+        in_progress_states = {"CREATE_IN_PROGRESS", "UPDATE_IN_PROGRESS",
+                              "UPDATE_COMPLETE_CLEANUP_IN_PROGRESS",
+                              "REVIEW_IN_PROGRESS", "IMPORT_IN_PROGRESS"}
+
+        table = Table(title=f"CloudFormation stacks for {project} ({env})",
+                      title_justify="left", show_lines=False)
+        table.add_column("Stack", style="cyan", overflow="fold")
+        table.add_column("Status")
+        table.add_column("Created")
+        table.add_column("Last updated")
+
+        unhealthy_count = 0
+        for s in actual:
+            name = s.get("StackName", "?")
+            short = name[len(prefix):-len(suffix)] or name
+            status = s.get("StackStatus", "?")
+            created = (s.get("CreationTime", "") or "").split(".")[0]
+            updated = (s.get("LastUpdatedTime", "") or "").split(".")[0] or "—"
+
+            if status in success_states:
+                status_cell = f"[green]{status}[/green]"
+            elif status in in_progress_states:
+                status_cell = f"[yellow]{status}[/yellow]"
+                unhealthy_count += 1
+            else:
+                status_cell = f"[red]{status}[/red]"
+                unhealthy_count += 1
+            table.add_row(short, status_cell, created, updated)
+
+        for name in missing:
+            short = name[len(prefix):-len(suffix)] or name
+            table.add_row(short,
+                          "[red]MISSING[/red]",
+                          "[dim]—[/dim]",
+                          "[dim]—[/dim]")
+        for name in unexpected:
+            short = name[len(prefix):-len(suffix)] or name
+            table.add_row(short, "[yellow]unexpected[/yellow]",
+                          "[dim]—[/dim]", "[dim]—[/dim]")
+
+        console.print(table)
+
+        problems = unhealthy_count + len(missing)
+        if problems == 0 and not unexpected:
+            console.print(
+                f"[green]✓ All {len(actual)} stacks healthy "
+                f"(matches the {len(expected_names)} expected by canopycli).[/green]")
+        else:
+            parts = []
+            if unhealthy_count:
+                parts.append(f"{unhealthy_count} non-success status")
+            if missing:
+                parts.append(f"{len(missing)} missing ({', '.join(missing)})")
+            if unexpected:
+                parts.append(
+                    f"{len(unexpected)} unexpected (likely from another project: {', '.join(unexpected)})")
+            console.print(
+                "[yellow]⚠ Issues:[/yellow] " + "; ".join(parts) +
+                ".\n[yellow]Inspect any non-success stack with:[/yellow] "
+                "[cyan]canopycli aws cloudformation status <Name>[/cyan]")
 
     # ---- S3 ---------------------------------------------------------------
 
@@ -618,6 +739,113 @@ class AwsWorker(Worker):
             [cmd],
             title=f"ECS services in cluster '{cluster}'",
         )
+
+    @staticmethod
+    def ecs_status():
+        """Show running/desired/pending counts and status for every ECS service
+        in the project cluster. Equivalent to::
+
+            aws ecs describe-services \\
+              --cluster <cluster> \\
+              --services $(aws ecs list-services --cluster <cluster> ...) \\
+              --query '...' --output table
+
+        Wrapped here to also flag mismatches (running != desired) so a glance
+        at the table is enough to spot a half-deployed or scaling service.
+        """
+        if not AwsWorker._check_env():
+            return
+
+        project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
+        env = AwsWorker._get_env("CANOPY_ENV")
+        profile = AwsWorker._get_env("AWS_PROFILE")
+        region = AwsWorker._get_env("AWS_REGION") or "us-east-1"
+        cluster = f"{project}-Services-{env}"
+
+        # Step 1: list service ARNs in the cluster.
+        list_cmd = ["aws", "ecs", "list-services",
+                    "--cluster", cluster,
+                    "--profile", profile, "--region", region,
+                    "--output", "json", "--no-cli-pager"]
+        try:
+            r = subprocess.run(list_cmd, capture_output=True, text=True, check=False)
+        except FileNotFoundError:
+            console.print("[red]aws CLI not found on PATH.[/red]")
+            return
+        if r.returncode != 0:
+            err = (r.stderr or r.stdout or "").strip()
+            console.print(Panel(
+                f"[red]list-services failed:[/red]\n{err}",
+                title=f"ECS status — {cluster}", title_align="left"),
+                style=Style(color="red"))
+            return
+        try:
+            arns = json.loads(r.stdout).get("serviceArns", [])
+        except json.JSONDecodeError:
+            arns = []
+        if not arns:
+            console.print(Panel(
+                f"[yellow]No services found in cluster '{cluster}'.[/yellow]",
+                title=f"ECS status — {cluster}", title_align="left"),
+                style=Style(color="yellow"))
+            return
+
+        # Step 2: describe-services. AWS caps --services at 10 per call.
+        services_data = []
+        for i in range(0, len(arns), 10):
+            batch = arns[i:i + 10]
+            d_cmd = ["aws", "ecs", "describe-services",
+                     "--cluster", cluster,
+                     "--services", *batch,
+                     "--profile", profile, "--region", region,
+                     "--output", "json", "--no-cli-pager"]
+            dr = subprocess.run(d_cmd, capture_output=True, text=True, check=False)
+            if dr.returncode != 0:
+                err = (dr.stderr or dr.stdout or "").strip()
+                console.print(f"[yellow]describe-services batch failed: {err}[/yellow]")
+                continue
+            try:
+                services_data.extend(json.loads(dr.stdout).get("services", []))
+            except json.JSONDecodeError:
+                pass
+
+        # Step 3: render a Rich table, colouring rows where running != desired.
+        table = Table(title=f"ECS services in '{cluster}'",
+                      title_justify="left", show_lines=False)
+        table.add_column("Service", style="cyan")
+        table.add_column("Status")
+        table.add_column("Desired", justify="right")
+        table.add_column("Running", justify="right")
+        table.add_column("Pending", justify="right")
+        table.add_column("Task def", overflow="fold")
+
+        any_unhealthy = False
+        for s in sorted(services_data, key=lambda x: x.get("serviceName", "")):
+            name = s.get("serviceName", "?")
+            status = s.get("status", "?")
+            desired = s.get("desiredCount", 0)
+            running = s.get("runningCount", 0)
+            pending = s.get("pendingCount", 0)
+            taskdef = (s.get("taskDefinition", "") or "").rsplit("/", 1)[-1]
+
+            healthy = (status == "ACTIVE" and running == desired and pending == 0)
+            if not healthy:
+                any_unhealthy = True
+            running_cell = (f"[green]{running}[/green]" if running == desired
+                            else f"[yellow]{running}[/yellow]")
+            status_cell = (f"[green]{status}[/green]" if status == "ACTIVE"
+                           else f"[red]{status}[/red]")
+            table.add_row(name, status_cell, str(desired), running_cell,
+                          str(pending), taskdef)
+
+        console.print(table)
+        if any_unhealthy:
+            console.print(
+                "[yellow]At least one service has running != desired or "
+                "non-ACTIVE status — check ECS console for the failing tasks.[/yellow]")
+        else:
+            console.print(
+                f"[green]All {len(services_data)} services healthy.[/green]")
 
     # ---- Lambda -----------------------------------------------------------
 

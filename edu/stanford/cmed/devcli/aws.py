@@ -25,7 +25,14 @@ def cf_status(
     AwsWorker.status(stack)
 
 
-@cloudformation_app.command("status-all", help="Check status of all project stacks")
+@cloudformation_app.command(
+    "status-all",
+    help=(
+        "Show every CloudFormation stack belonging to this project+env, with "
+        "status, creation time, and last-updated time. Highlights stacks in a "
+        "non-success state and flags any expected stack that is missing."
+    ),
+)
 def cf_status_all():
     AwsWorker.status_all()
 
@@ -138,6 +145,17 @@ app.add_typer(ecs_app, name="ecs", help="Elastic Container Service operations...
 @ecs_app.command("list-services", help="List ECS services in the project cluster")
 def ecs_list_services():
     AwsWorker.ecs_list_services()
+
+
+@ecs_app.command(
+    "status",
+    help=(
+        "Show running/desired/pending counts and status for every ECS service "
+        "in the project cluster. Highlights any service where running != desired."
+    ),
+)
+def ecs_status():
+    AwsWorker.ecs_status()
 
 
 @ecs_app.command(
