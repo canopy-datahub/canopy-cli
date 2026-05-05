@@ -11,6 +11,7 @@ showing per-file progress with an elapsed/ETA readout.
 
 import json
 import os
+import re
 import subprocess
 import sys
 import time
@@ -159,10 +160,16 @@ class DeployRdsWorker:
             sys.exit(1)
         console.print(f"  RDS endpoint: [cyan]{endpoint}[/cyan]\n")
 
-        # These derivations match the old script verbatim. Param file has
-        # CanopyAppDbName / DbMasterUsername with the same values today.
-        db_name = f"{project}_{env}"
-        db_user = f"canopy_postgres_{env}"
+        # The application DB name and the RDS master username are both set
+        # at CloudFormation deploy time from CANOPY_AWS_PARAMETER_FILE
+        # (RDS.yaml reads CanopyAppDbName / DbMasterUsername). Read them
+        # back from the same file here so we connect with whatever the
+        # user actually configured — not a hardcoded `canopy_*` derivation
+        # that breaks the moment ProjectName isn't literally "canopy".
+        db_name = DeployRdsWorker._param(
+            "CanopyAppDbName", default=f"{project}_{env}")
+        db_user = DeployRdsWorker._param(
+            "DbMasterUsername", default=f"{project}_postgres_{env}")
 
         db_password = getpass("Enter database master password: ")
         console.print("\n[bold]Testing connection…[/bold]")
@@ -171,11 +178,19 @@ class DeployRdsWorker:
                 Panel(
                     "[red]Could not connect to database.\n"
                     "[yellow]Common causes:\n"
-                    f"  1. Wrong master password (check DbMasterPassword in the param file)\n"
-                    f"  2. Security group doesn't allow your IP (update MyIP and re-deploy RDS)\n"
-                    f"  3. RDS instance not yet ACTIVE — check\n"
-                    f"     aws rds describe-db-instances --db-instance-identifier {db_identifier} --region {region} --query 'DBInstances[0].DBInstanceStatus'\n"
-                    f"  4. Network-level connectivity issues",
+                    f"  1. Wrong master password — show the value RDS was created with:\n"
+                    f"     jq -r '.Parameters.DbMasterPassword' \"$CANOPY_AWS_PARAMETER_FILE\"\n"
+                    f"  2. The param file was edited *after* RDS was deployed. The master\n"
+                    f"     password is set at create time; later edits are not picked up.\n"
+                    f"     Rotate it with:\n"
+                    f"     aws rds modify-db-instance \\\n"
+                    f"       --db-instance-identifier {db_identifier} \\\n"
+                    f"       --master-user-password '<new>' --apply-immediately\n"
+                    f"  3. Special characters in the password mangled by your shell —\n"
+                    f"     re-test using PGPASSWORD instead of the prompt.\n"
+                    f"  4. Security group doesn't allow your IP (update MyIP and re-deploy RDS).\n"
+                    f"  5. RDS instance not yet ACTIVE — check:\n"
+                    f"     aws rds describe-db-instances --db-instance-identifier {db_identifier} --region {region} --query 'DBInstances[0].DBInstanceStatus'",
                     title="Connection failed",
                     title_align="left",
                 ),
@@ -308,6 +323,11 @@ class DeployRdsWorker:
     ) -> bool:
         env = os.environ.copy()
         env["PGPASSWORD"] = password
+        # PGSSLMODE=require pins the connection to TLS. RDS sets
+        # `rds.force_ssl=1` by default, which makes a plaintext-fallback
+        # attempt fail with a misleading "no pg_hba.conf entry … no
+        # encryption" message that hides the real auth failure.
+        env["PGSSLMODE"] = "require"
         cmd = [
             "psql",
             "-h", endpoint,
@@ -335,6 +355,7 @@ class DeployRdsWorker:
     ) -> bool:
         env = os.environ.copy()
         env["PGPASSWORD"] = password
+        env["PGSSLMODE"] = "require"     # pin to TLS; see _test_psql_connection
         cmd: List[str] = ["psql", "-h", endpoint, "-U", user, "-d", db_name]
         for key, value in (psql_vars or {}).items():
             cmd.extend(["-v", f"{key}={value}"])
@@ -344,6 +365,28 @@ class DeployRdsWorker:
             return True
         except subprocess.CalledProcessError:
             return False
+
+    @staticmethod
+    def _param(key: str, default: str = "") -> str:
+        """Read a single value from CANOPY_AWS_PARAMETER_FILE, substituting
+        any `<<ENV_VAR>>` placeholders that haven't been resolved yet.
+        Returns `default` if the file is missing, can't be parsed, or the
+        key is absent."""
+        path = os.environ.get("CANOPY_AWS_PARAMETER_FILE", "")
+        if not path or not Path(path).is_file():
+            return default
+        try:
+            params = json.loads(Path(path).read_text()).get("Parameters", {})
+        except (json.JSONDecodeError, OSError):
+            return default
+        val = params.get(key)
+        if not isinstance(val, str) or not val:
+            return default
+        return re.sub(
+            r"<<([A-Z_][A-Z0-9_]*)>>",
+            lambda m: os.environ.get(m.group(1), m.group(0)),
+            val,
+        )
 
     @staticmethod
     def _load_keycloak_db_params() -> Dict[str, str]:
