@@ -227,6 +227,42 @@ def _eval_condition(value, params: Dict[str, str]) -> bool:
 _PLACEHOLDER_RE = re.compile(r"replaceme|REPLACEME", re.IGNORECASE)
 
 
+# ---------------------------------------------------------------------------
+# Parameter-value sanity rules. Some AWS resources reject passwords or other
+# values that don't meet specific complexity rules — those rejections happen
+# only at deploy time, often 10+ minutes in. Catch them up-front.
+# ---------------------------------------------------------------------------
+
+
+def _check_complex_password(value: str) -> List[str]:
+    """AWS OpenSearch / RDS Aurora master-password rule: ≥1 upper, ≥1 lower,
+    ≥1 digit, ≥1 special. OpenSearch rejects passwords that don't satisfy
+    this with `Invalid request: The master user password must contain at
+    least one uppercase letter, one lowercase letter, one number, and one
+    special character.` Returns a list of issue messages (empty = OK)."""
+    issues = []
+    if len(value) < 8:
+        issues.append("must be at least 8 characters")
+    if not re.search(r"[A-Z]", value):
+        issues.append("must contain at least one uppercase letter")
+    if not re.search(r"[a-z]", value):
+        issues.append("must contain at least one lowercase letter")
+    if not re.search(r"\d", value):
+        issues.append("must contain at least one digit")
+    if not re.search(r"[^A-Za-z0-9]", value):
+        issues.append("must contain at least one special character")
+    return issues
+
+
+# Per-parameter rules. Each entry is (param_key, label, validator).
+PARAM_RULES: List[Tuple[str, str, Callable[[str], List[str]]]] = [
+    ("OpenSearchPassword", "OpenSearch master password",
+     _check_complex_password),
+    # Add more here as we hit them — DbMasterPassword and KeycloakAdminPassword
+    # are commonly affected too.
+]
+
+
 def _resolve_cluster_ref(value, params: Dict[str, str],
                          siblings: Dict[str, str]) -> Optional[str]:
     """Best-effort resolve an ECS service's `Cluster` property to a cluster
@@ -915,6 +951,23 @@ class PreflightWorker:
                         props.get("Cluster"), params, siblings)
                     if cluster:
                         f.context["cluster"] = cluster
+                findings.append(f)
+
+        # ---- parameter-value sanity ---------------------------------------
+        # Catch values that AWS will reject at deploy time (e.g. weak
+        # OpenSearch master password). These show up as findings of type
+        # `Parameter` so they appear in the report next to resource issues.
+        for key, label, validator in PARAM_RULES:
+            val = params.get(key)
+            if not val or _PLACEHOLDER_RE.search(val):
+                # Skip — the placeholder warning on resources covers this.
+                continue
+            problems = validator(val)
+            if problems:
+                f = Finding(stack="(parameters)", type="Parameter",
+                            logical_id=key, name="(value redacted)")
+                for msg in problems:
+                    f.issues.append(NameIssue("error", f"{label}: {msg}"))
                 findings.append(f)
 
         # ---- probe -------------------------------------------------------

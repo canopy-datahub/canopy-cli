@@ -222,13 +222,37 @@ class AwsWorker(Worker):
         # Execute
         console.print()
         cmd_flat = " ".join(cmd_parts)
-        Worker.execute_generic_shell_commands(
+        _, rc = Worker.execute_generic_shell_commands(
             [cmd_flat],
             title=f"Deploying {stack_name}",
         )
 
         console.print()
-        console.print(f"[bold green]Deploy command for {stack_name} finished.[/bold green]")
+        if rc == 0:
+            console.print(
+                f"[bold green]✓ Deploy of {stack_name} succeeded.[/bold green]")
+        else:
+            console.print(Panel(
+                f"[red]✗ Deploy of {stack_name} FAILED (aws cloudformation "
+                f"exit code {rc}).[/red]\n\n"
+                f"[yellow]Inspect the failure with:[/yellow]\n"
+                f"  aws cloudformation describe-stack-events "
+                f"--stack-name {full_stack_name} \\\n"
+                f"    --profile {profile} --region {region} "
+                f"--query 'StackEvents[?ResourceStatus==`CREATE_FAILED` "
+                f"|| ResourceStatus==`UPDATE_FAILED`]"
+                f".[ResourceType,LogicalResourceId,ResourceStatusReason]' "
+                f"--output table\n\n"
+                f"[yellow]Or in the AWS Console: "
+                f"CloudFormation → Stacks → {full_stack_name} → Events.[/yellow]\n\n"
+                f"[yellow]Stale stacks left in ROLLBACK_COMPLETE must be "
+                f"deleted before retrying:[/yellow]\n"
+                f"  aws cloudformation delete-stack --stack-name {full_stack_name} "
+                f"--profile {profile} --region {region}",
+                title=f"Deploy failed: {stack_name}",
+                title_align="left"),
+                style=Style(color="red"))
+            sys.exit(1)
 
     @staticmethod
     def status(stack_name: str):
@@ -696,28 +720,123 @@ class AwsWorker(Worker):
 
     @staticmethod
     def opensearch_endpoint():
-        """Show the OpenSearch VPC endpoint for the project."""
+        """Show the OpenSearch VPC endpoint for the project.
+
+        Calls describe-domain and prints the VPC endpoint. On
+        ResourceNotFoundException, falls back to list-domain-names so the
+        user sees which domains do exist (e.g. if they deployed in a
+        different region, or the stack is still creating)."""
         if not AwsWorker._check_env():
             return
 
         project = AwsWorker._get_env("CANOPY_PROJECT_NAME")
         env = AwsWorker._get_env("CANOPY_ENV")
         profile = AwsWorker._get_env("AWS_PROFILE")
+        region = AwsWorker._get_env("AWS_REGION") or "us-east-1"
 
         domain = f"{project}-opensearch-{env}"
 
-        cmd = (
-            f"aws opensearch describe-domain"
-            f" --domain-name {domain}"
-            f" --query 'DomainStatus.Endpoints.vpc'"
-            f" --output text"
-            f" --no-cli-pager"
-            f" --profile {profile}"
-        )
+        cmd = ["aws", "opensearch", "describe-domain",
+               "--domain-name", domain,
+               "--profile", profile,
+               "--region", region,
+               "--output", "json",
+               "--no-cli-pager"]
 
-        Worker.execute_generic_shell_commands(
-            [cmd],
-            title=f"OpenSearch VPC endpoint for '{domain}'",
+        try:
+            r = subprocess.run(cmd, capture_output=True, text=True, check=False)
+        except FileNotFoundError:
+            console.print("[red]aws CLI not found on PATH.[/red]")
+            return
+
+        if r.returncode == 0:
+            try:
+                status = json.loads(r.stdout).get("DomainStatus", {})
+                vpc = status.get("Endpoints", {}).get("vpc")
+                processing = status.get("Processing", False)
+                created = status.get("Created", False)
+            except json.JSONDecodeError:
+                vpc, processing, created = None, False, False
+
+            if vpc:
+                console.print(
+                    Panel(
+                        f"[green]✓ Endpoint:[/green] [cyan]{vpc}[/cyan]\n"
+                        f"[yellow]Region :[/yellow] {region}\n"
+                        f"[yellow]Domain :[/yellow] {domain}",
+                        title=f"OpenSearch — {domain}",
+                        title_align="left",
+                    ),
+                    style=Style(color="green"),
+                )
+                return
+
+            # Domain exists but no VPC endpoint yet.
+            console.print(
+                Panel(
+                    f"[yellow]Domain exists but VPC endpoint not yet provisioned.[/yellow]\n"
+                    f"  Created    : {created}\n"
+                    f"  Processing : {processing}\n\n"
+                    f"OpenSearch domains take 15–20 minutes to come online. "
+                    f"Re-run this command in a few minutes.",
+                    title=f"OpenSearch — {domain}",
+                    title_align="left",
+                ),
+                style=Style(color="yellow"),
+            )
+            return
+
+        err = (r.stderr or r.stdout or "").strip()
+        if "ResourceNotFoundException" in err or "Domain not found" in err:
+            # Fall back: list all domains in the region so the user sees
+            # what's actually there. Often reveals a region mismatch.
+            list_cmd = ["aws", "opensearch", "list-domain-names",
+                        "--profile", profile, "--region", region,
+                        "--output", "json", "--no-cli-pager"]
+            existing_names: List[str] = []
+            try:
+                lr = subprocess.run(list_cmd, capture_output=True,
+                                    text=True, check=False)
+                if lr.returncode == 0:
+                    existing_names = [
+                        d.get("DomainName")
+                        for d in json.loads(lr.stdout).get("DomainNames", [])
+                    ]
+            except (FileNotFoundError, json.JSONDecodeError):
+                pass
+
+            if existing_names:
+                others = "\n".join(f"  • {n}" for n in existing_names)
+                hint = (f"\n\n[yellow]Domains that DO exist in {region}:[/yellow]\n"
+                        f"{others}")
+            else:
+                hint = (f"\n\n[yellow]No OpenSearch domains exist in {region}.[/yellow]\n"
+                        f"Likely causes:\n"
+                        f"  1. Stack still creating — check:\n"
+                        f"     canopycli aws cloudformation status OpenSearch\n"
+                        f"  2. Stack failed — check the same command for FAILED status.\n"
+                        f"  3. Region mismatch — list other regions with:\n"
+                        f"     aws opensearch list-domain-names --profile {profile} --region <other>")
+
+            console.print(
+                Panel(
+                    f"[red]✗ Domain not found:[/red] {domain}\n"
+                    f"[yellow]Region searched:[/yellow] {region}{hint}",
+                    title=f"OpenSearch — {domain}",
+                    title_align="left",
+                ),
+                style=Style(color="red"),
+            )
+            return
+
+        console.print(
+            Panel(
+                f"[red]aws opensearch describe-domain failed (exit {r.returncode}):[/red]\n"
+                f"[yellow]{err}[/yellow]",
+                title=f"OpenSearch — {domain}",
+                title_align="left",
+            ),
+            style=Style(color="red"),
         )
 
     SERVICE_LINKED_ROLE = "AWSServiceRoleForAmazonOpenSearchService"

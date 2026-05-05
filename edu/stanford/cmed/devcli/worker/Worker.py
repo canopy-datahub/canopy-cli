@@ -48,7 +48,9 @@ class Worker:
 
         Worker.handle_shell_stdout(proc_stdout, stdout_parts)
 
-        return stdout_parts
+        # Return both stdout and exit code so callers that care about
+        # success/failure can check it. Existing callers discard the return.
+        return stdout_parts, proc.returncode
 
     @staticmethod
     def handle_shell_stdout(proc_stream, my_buffer, echo_streams=True):
