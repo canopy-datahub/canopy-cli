@@ -262,6 +262,10 @@ def route_block(
 
     if obj_type == "SCHEMA":
         return "020_schemas.sql"
+    if obj_type == "EXTENSION":
+        # Extensions must load before functions that reference their types
+        # (e.g. hstore is used by the audit trigger function in 030).
+        return "015_extensions.sql"
     if obj_type == "FUNCTION":
         return "030_functions.sql"
     if obj_type == "PROCEDURE":

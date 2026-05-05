@@ -126,33 +126,6 @@ GRANT SELECT,USAGE ON SEQUENCE public.institution_id_seq TO canopy_user;
 
 
 --
--- TOC entry 5445 (class 0 OID 0)
--- Dependencies: 269
--- Name: SEQUENCE jwt_token_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.jwt_token_id_seq TO canopy_user;
-
-
---
--- TOC entry 5448 (class 0 OID 0)
--- Dependencies: 288
--- Name: SEQUENCE lkup_cde_codelist_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.lkup_cde_codelist_id_seq TO canopy_user;
-
-
---
--- TOC entry 5451 (class 0 OID 0)
--- Dependencies: 290
--- Name: SEQUENCE lkup_cde_codelist_value_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.lkup_cde_codelist_value_id_seq TO canopy_user;
-
-
---
 -- TOC entry 5462 (class 0 OID 0)
 -- Dependencies: 296
 -- Name: SEQUENCE lkup_event_type_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
@@ -207,24 +180,6 @@ GRANT ALL ON SEQUENCE public.lkup_support_request_type_id_seq TO canopy_user;
 
 
 --
--- TOC entry 5504 (class 0 OID 0)
--- Dependencies: 286
--- Name: SEQUENCE lkup_variable_type_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.lkup_variable_type_id_seq TO canopy_user;
-
-
---
--- TOC entry 5507 (class 0 OID 0)
--- Dependencies: 276
--- Name: SEQUENCE lkup_workbench_interest_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.lkup_workbench_interest_id_seq TO canopy_user;
-
-
---
 -- TOC entry 5510 (class 0 OID 0)
 -- Dependencies: 310
 -- Name: SEQUENCE metrics_report_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
@@ -258,33 +213,6 @@ GRANT ALL ON SEQUENCE public.news_link_id_seq TO canopy_user;
 --
 
 GRANT ALL ON SEQUENCE public.newsletter_id_seq TO canopy_user;
-
-
---
--- TOC entry 5523 (class 0 OID 0)
--- Dependencies: 337
--- Name: SEQUENCE public_data_collection_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.public_data_collection_id_seq TO canopy_user;
-
-
---
--- TOC entry 5525 (class 0 OID 0)
--- Dependencies: 339
--- Name: SEQUENCE public_data_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.public_data_id_seq TO canopy_user;
-
-
---
--- TOC entry 5528 (class 0 OID 0)
--- Dependencies: 267
--- Name: SEQUENCE ras_tracking_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT SELECT,USAGE ON SEQUENCE public.ras_tracking_id_seq TO canopy_user;
 
 
 --
@@ -379,15 +307,6 @@ GRANT ALL ON SEQUENCE public.user_login_id_seq TO canopy_user;
 
 
 --
--- TOC entry 5570 (class 0 OID 0)
--- Dependencies: 271
--- Name: SEQUENCE user_ras_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.user_ras_id_seq TO canopy_user;
-
-
---
 -- TOC entry 5573 (class 0 OID 0)
 -- Dependencies: 416
 -- Name: SEQUENCE user_referrer_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
@@ -403,15 +322,6 @@ GRANT ALL ON SEQUENCE public.user_referrer_id_seq TO canopy_user;
 --
 
 GRANT SELECT,USAGE ON SEQUENCE public.user_role_id_seq TO canopy_user;
-
-
---
--- TOC entry 5579 (class 0 OID 0)
--- Dependencies: 425
--- Name: SEQUENCE user_workspace_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.user_workspace_id_seq TO canopy_user;
 
 
 --
@@ -460,38 +370,17 @@ GRANT ALL ON TABLE public.view_study_for_es TO canopy_user;
 
 
 --
--- TOC entry 5608 (class 0 OID 0)
--- Dependencies: 331
--- Name: SEQUENCE weekly_hub_content_data_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.weekly_hub_content_data_id_seq TO canopy_user;
-
-
---
--- TOC entry 5611 (class 0 OID 0)
--- Dependencies: 278
--- Name: SEQUENCE workbench_request_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.workbench_request_id_seq TO canopy_user;
-
-
---
--- TOC entry 5614 (class 0 OID 0)
--- Dependencies: 280
--- Name: SEQUENCE workbench_request_interest_id_seq; Type: ACL; Schema: public; Owner: canopy_admin
---
-
-GRANT ALL ON SEQUENCE public.workbench_request_interest_id_seq TO canopy_user;
-
-
---
 -- TOC entry 2750 (class 826 OID 16822)
 -- Name: DEFAULT PRIVILEGES FOR SEQUENCES; Type: DEFAULT ACL; Schema: public; Owner: canopy_admin
 --
+-- The deploy runs as the RDS master user (e.g. canopi_postgres_staging),
+-- which can't ALTER DEFAULT PRIVILEGES of another role. SET ROLE first.
+-- The master role inherits canopy_admin via 010_roles.sql, which makes
+-- this SET ROLE legal.
 
+SET ROLE canopy_admin;
 ALTER DEFAULT PRIVILEGES FOR ROLE canopy_admin IN SCHEMA public GRANT ALL ON SEQUENCES TO canopy_user;
+RESET ROLE;
 
 
 --
@@ -499,7 +388,9 @@ ALTER DEFAULT PRIVILEGES FOR ROLE canopy_admin IN SCHEMA public GRANT ALL ON SEQ
 -- Name: DEFAULT PRIVILEGES FOR TABLES; Type: DEFAULT ACL; Schema: public; Owner: canopy_admin
 --
 
+SET ROLE canopy_admin;
 ALTER DEFAULT PRIVILEGES FOR ROLE canopy_admin IN SCHEMA public GRANT ALL ON TABLES TO canopy_user;
+RESET ROLE;
 
 
 -- Completed on 2025-06-24 07:28:04

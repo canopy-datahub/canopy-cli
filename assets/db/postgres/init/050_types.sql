@@ -16,9 +16,6 @@ CREATE TYPE public.variableinfotype AS (
 
 ALTER TYPE public.variableinfotype OWNER TO canopy_admin;
 
+-- Note: hstore extension is created in 015_extensions.sql, which runs
+-- before 030_functions.sql (after_operation_trigger_fnc references it).
 
-
--- Install hstore extension
-CREATE EXTENSION IF NOT EXISTS hstore;
-
---
