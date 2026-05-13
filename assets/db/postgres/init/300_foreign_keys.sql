@@ -625,3 +625,19 @@ ALTER TABLE ONLY public.variables
 
 
 --
+-- Name: role_capability fk_role_capability_role_id; Type: FK CONSTRAINT; Schema: public; Owner: canopy_admin
+--
+
+ALTER TABLE ONLY public.role_capability
+    ADD CONSTRAINT fk_role_capability_role_id FOREIGN KEY (role_id) REFERENCES public.lkup_role(id) ON DELETE CASCADE;
+
+
+--
+-- Name: role_capability fk_role_capability_capability_id; Type: FK CONSTRAINT; Schema: public; Owner: canopy_admin
+--
+
+ALTER TABLE ONLY public.role_capability
+    ADD CONSTRAINT fk_role_capability_capability_id FOREIGN KEY (capability_id) REFERENCES public.lkup_capability(id) ON DELETE CASCADE;
+
+
+--
