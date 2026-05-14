@@ -77,9 +77,13 @@ INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 40);   --
 INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 41);   -- curator.submission.read
 INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 42);   -- curator.submission.review
 INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 43);   -- curator.submission.download.bulk
-INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 50);   -- upload-portal.dashboard.view
-INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 51);   -- upload-portal.dashboard.delete
-INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 52);   -- upload-portal.file.download
+-- The three upload-portal curator capabilities (50 upload-portal.dashboard.view,
+-- 51 upload-portal.dashboard.delete, 52 upload-portal.file.download) are
+-- intentionally NOT bound to the Curator role: the Uploader role is disabled
+-- platform-wide (see UserServiceImpl.BLOCKED_ROLES), so no uploads ever land
+-- in the curator queue. The capabilities remain defined in lkup_capability;
+-- restore the three role_capability rows here to re-enable the
+-- /curator/downloads page when Uploader is resurrected.
 INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 80);   -- report.weekly-study.download
 
 -- =========================================================================
