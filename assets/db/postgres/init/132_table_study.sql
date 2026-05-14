@@ -15,8 +15,13 @@ CREATE TABLE public.study (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     created_by integer DEFAULT 9999 NOT NULL,
     modified_at timestamp without time zone,
-    modified_by integer
+    modified_by integer,
+    access_level character varying(16) NOT NULL DEFAULT 'PUBLIC'
+        CHECK (access_level IN ('PUBLIC', 'LIMITED', 'PRIVATE'))
 );
+
+CREATE INDEX IF NOT EXISTS idx_study_access_level ON public.study (access_level);
+CREATE INDEX IF NOT EXISTS idx_study_created_by   ON public.study (created_by);
 
 
 ALTER TABLE public.study OWNER TO canopy_admin;
