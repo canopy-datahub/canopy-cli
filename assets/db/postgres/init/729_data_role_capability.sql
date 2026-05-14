@@ -67,7 +67,10 @@ INSERT INTO public.role_capability (role_id, capability_id) VALUES (2, 95);   --
 -- =========================================================================
 INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 15);   -- submission.validation.read
 INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 17);   -- submission.validation.errors.read
-INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 23);   -- study.curator.create
+-- study.curator.create (capability 23) intentionally NOT bound to the Curator
+-- role: per platform policy, curators can only approve studies, not create
+-- them. The capability remains defined in lkup_capability; re-add this row to
+-- restore curator-side study creation.
 INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 24);   -- study.curator.edit
 INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 25);   -- study.curator.list
 INSERT INTO public.role_capability (role_id, capability_id) VALUES (3, 26);   -- study.values.read
