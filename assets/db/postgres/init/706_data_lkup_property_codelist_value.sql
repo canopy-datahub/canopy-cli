@@ -102,11 +102,11 @@ INSERT INTO public.lkup_property_codelist_value VALUES (267, 28, 'Lower Socioeco
 INSERT INTO public.lkup_property_codelist_value VALUES (2, 15, 'No', 20);
 INSERT INTO public.lkup_property_codelist_value VALUES (3, 14, 'TRUE', 10);
 INSERT INTO public.lkup_property_codelist_value VALUES (4, 14, 'FALSE', 20);
-INSERT INTO public.lkup_property_codelist_value VALUES (5, 2, 'RADx DHT', 10);
-INSERT INTO public.lkup_property_codelist_value VALUES (6, 2, 'RADx-rad', 20);
-INSERT INTO public.lkup_property_codelist_value VALUES (7, 2, 'RADx Tech', 30);
-INSERT INTO public.lkup_property_codelist_value VALUES (8, 2, 'RADx-UP', 40);
-INSERT INTO public.lkup_property_codelist_value VALUES (363, 2, 'Stanford', 50);
+INSERT INTO public.lkup_property_codelist_value VALUES (5, 2, 'Center C', 10);
+INSERT INTO public.lkup_property_codelist_value VALUES (6, 2, 'Center D', 20);
+INSERT INTO public.lkup_property_codelist_value VALUES (7, 2, 'Center B', 30);
+INSERT INTO public.lkup_property_codelist_value VALUES (8, 2, 'Center A', 40);
+INSERT INTO public.lkup_property_codelist_value VALUES (363, 2, 'Center E', 50);
 INSERT INTO public.lkup_property_codelist_value VALUES (284, 16, 'Community Outreach Programs', 50);
 INSERT INTO public.lkup_property_codelist_value VALUES (285, 16, 'Comorbidities', 60);
 INSERT INTO public.lkup_property_codelist_value VALUES (286, 16, 'COVID Hotspots', 70);
