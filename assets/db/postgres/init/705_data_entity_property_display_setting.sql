@@ -58,7 +58,7 @@ INSERT INTO public.entity_property_display_setting VALUES (33, 6, 'study_overvie
 INSERT INTO public.entity_property_display_setting VALUES (34, 7, 'study_overview', 'Detail', 'Study End Date', 210, false, NULL, NULL, NULL, false);
 INSERT INTO public.entity_property_display_setting VALUES (20, 49, 'study_search', 'Detail', 'Species', 220, false, NULL, NULL, NULL, false);
 INSERT INTO public.entity_property_display_setting VALUES (46, 49, 'study_overview', 'Detail', 'Species', 220, false, NULL, NULL, NULL, false);
-INSERT INTO public.entity_property_display_setting VALUES (45, 35, 'study_overview', 'Detail', 'Acknowledgement Statement', 290, false, NULL, NULL, NULL, false);
+INSERT INTO public.entity_property_display_setting VALUES (45, 35, 'study_overview', 'Detail', 'Acknowledgment Statement', 290, false, NULL, NULL, NULL, false);
 INSERT INTO public.entity_property_display_setting VALUES (54, 67, 'study_overview', 'Detail', 'NIH Grant or Contract Number(s)', 310, false, NULL, NULL, NULL, false);
 INSERT INTO public.entity_property_display_setting VALUES (83, 67, 'study_search', 'Detail', 'NIH Grant or Contract Number(s)', 310, false, NULL, NULL, NULL, false);
 INSERT INTO public.entity_property_display_setting VALUES (85, 74, 'study_search', 'Detail', 'DOI', 340, false, NULL, NULL, NULL, false);

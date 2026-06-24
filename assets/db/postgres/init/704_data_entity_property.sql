@@ -3,8 +3,8 @@
 
 -- INSERT INTO public.entity_property VALUES (1, 'phs', NULL, 1, 1, 2, false, false, NULL, false);
 INSERT INTO public.entity_property VALUES (2, 'title', NULL, 1, 1, 1, false, false, NULL, false);
-INSERT INTO public.entity_property VALUES (6, 'studystartdate', NULL, 1, 4, 2, false, false, NULL, false);
-INSERT INTO public.entity_property VALUES (7, 'studyenddate', NULL, 1, 4, 2, false, false, NULL, false);
+INSERT INTO public.entity_property VALUES (6, 'study_start_date', NULL, 1, 4, 2, false, false, NULL, false);
+INSERT INTO public.entity_property VALUES (7, 'study_end_date', NULL, 1, 4, 2, false, false, NULL, false);
 INSERT INTO public.entity_property VALUES (5, 'center', NULL, 1, 3, 2, false, false, 2, false);
 INSERT INTO public.entity_property VALUES (20, 'source', NULL, 1, 3, 2, false, true, 3, false);
 INSERT INTO public.entity_property VALUES (3, 'description', NULL, 1, 1, 1, false, false, NULL, false);
@@ -40,7 +40,7 @@ INSERT INTO public.entity_property VALUES (26, 'data_general_types', NULL, 1, 3,
 INSERT INTO public.entity_property VALUES (44, 'data_array_data', NULL, 1, 3, 1, false, true, 24, true);
 INSERT INTO public.entity_property VALUES (24, 'institutes_supporting_study', NULL, 1, 3, 1, false, true, 18, false);
 INSERT INTO public.entity_property VALUES (22, 'types', NULL, 1, 3, 1, false, true, 17, false);
-INSERT INTO public.entity_property VALUES (35, 'acknowledgement_statement', NULL, 1, 1, 1, false, false, NULL, false);
+INSERT INTO public.entity_property VALUES (35, 'acknowledgment_statement', NULL, 1, 1, 1, false, false, NULL, false);
 INSERT INTO public.entity_property VALUES (67, 'grant_number', NULL, 1, 1, 1, false, true, NULL, false);
 INSERT INTO public.entity_property VALUES (60, 'general_research_group', NULL, 1, 3, 1, false, true, 21, false);
 INSERT INTO public.entity_property VALUES (70, 'health_biomed_group', NULL, 1, 3, 1, false, true, 22, false);
@@ -87,10 +87,10 @@ INSERT INTO public.entity_property VALUES (92, 'data_array_data_other_specify', 
 INSERT INTO public.entity_property VALUES (84, 'source_other_specify', 'Other methods used to collect the data, or the type of data source that the data is derived from', 1, 1, 2, false, false, NULL, true);
 INSERT INTO public.entity_property VALUES (21, 'subject', NULL, 1, 1, 2, false, true, NULL, false);
 INSERT INTO public.entity_property VALUES (74, 'study_DOI', 'The Digital Object Identifier (DOI) assigned to the study', 1, 1, 3, false, false, NULL, false);
-INSERT INTO public.entity_property VALUES (100, 'FOA_number', 'Funding Opportunity Announcement (FOA) Number ', 1, 1, 2, false, false, NULL, false);
+INSERT INTO public.entity_property VALUES (100, 'foa_number', 'Funding Opportunity Announcement (FOA) Number ', 1, 1, 2, false, false, NULL, false);
 INSERT INTO public.entity_property VALUES (101, 'FOA_URL', 'Funding Opportunity Announcement (FOA) URL', 1, 1, 2, false, false, NULL, false);
-INSERT INTO public.entity_property VALUES (95, 'study_website_URL', 'Study Website URL', 1, 1, 2, false, true, NULL, false);
-INSERT INTO public.entity_property VALUES (97, 'publication_URL', 'Primary Publication URL', 1, 1, 2, false, false, NULL, false);
+INSERT INTO public.entity_property VALUES (95, 'study_website_url', 'Study Website URL', 1, 1, 2, false, true, NULL, false);
+INSERT INTO public.entity_property VALUES (97, 'publication_url', 'Primary Publication URL', 1, 1, 2, false, false, NULL, false);
 INSERT INTO public.entity_property VALUES (82, 'topics', 'Select the topics covered by the study', 1, 3, 2, false, true, 16, false);
 INSERT INTO public.entity_property VALUES (98, 'access_type', NULL, 1, 3, 1, false, false, 23, true);
 INSERT INTO public.entity_property VALUES (99, 'data_access_type', NULL, 1, 3, 1, false, true, 26, true);
@@ -98,7 +98,7 @@ INSERT INTO public.entity_property VALUES (102, 'estimated_participant_range', N
 INSERT INTO public.entity_property VALUES (14, 'pi_institution', NULL, 1, 1, 1, false, false, NULL, true);
 INSERT INTO public.entity_property VALUES (93, 'data_access_points_other', 'Other data access point, list all', 1, 1, 1, false, true, NULL, true);
 INSERT INTO public.entity_property VALUES (94, 'topics_other_specify', 'Other study topics, specify', 1, 1, 2, false, true, NULL, true);
-INSERT INTO public.entity_property VALUES (96, 'CT_URL', 'ClinicalTrials.gov URL', 1, 1, 2, false, true, NULL, false);
+INSERT INTO public.entity_property VALUES (96, 'ct_url', 'ClinicalTrials.gov URL', 1, 1, 2, false, true, NULL, false);
 INSERT INTO public.entity_property VALUES (81, 'study_population_focus', NULL, 1, 3, 2, false, true, 28, false);
 INSERT INTO public.entity_property VALUES (4, 'RAPIDS_link', NULL, 1, 1, 3, false, false, NULL, false);
 INSERT INTO public.entity_property VALUES (75, 'study_citation', 'Citation for citing the use of the study from RADx Data Hub. Principal Investigator (Publication Year). Study Name (Version) [Resource Type]. Publisher. Identifier', 1, 1, 3, false, false, NULL, false);

@@ -75,7 +75,7 @@ INSERT INTO public.entity_property_mta_mapping VALUES (51, 28, 'Somatic SNV MAF'
 INSERT INTO public.entity_property_mta_mapping VALUES (52, 28, 'Other_Specify_5', 7, 137, NULL);
 INSERT INTO public.entity_property_mta_mapping VALUES (53, 29, 'DNA', 8, 121, NULL);
 INSERT INTO public.entity_property_mta_mapping VALUES (77, 99, 'Controlled Access Data', 26, 171, NULL);
-INSERT INTO public.entity_property_mta_mapping VALUES (72, 35, 'Acknowledgement Statement', NULL, NULL, NULL);
+INSERT INTO public.entity_property_mta_mapping VALUES (72, 35, 'Acknowledgment Statement', NULL, NULL, NULL);
 INSERT INTO public.entity_property_mta_mapping VALUES (73, 36, 'aggregate level radio', NULL, NULL, NULL);
 INSERT INTO public.entity_property_mta_mapping VALUES (74, 38, 'aggregate collect radio', NULL, NULL, NULL);
 INSERT INTO public.entity_property_mta_mapping VALUES (75, 39, 'individual collection radio', NULL, NULL, NULL);
