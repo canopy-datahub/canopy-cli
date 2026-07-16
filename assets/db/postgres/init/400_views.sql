@@ -664,16 +664,19 @@ SELECT s.study_id,
        s."publication_url",
        s."foa_number",
        s."FOA_URL",
-       s.created_at
-FROM ((public.view_study s
+       s.created_at,
+       st.access_level,
+       st.created_by AS creator_id
+FROM public.view_study s
     LEFT JOIN ( SELECT view_variables.study_id,
                        array_agg(DISTINCT view_variables.variable) AS study_variables
                 FROM public.view_variables
-                GROUP BY view_variables.study_id) v1 ON ((s.study_id = v1.study_id)))
+                GROUP BY view_variables.study_id) v1 ON ((s.study_id = v1.study_id))
     LEFT JOIN ( SELECT view_variables.study_id,
                        count(DISTINCT view_variables.variable) AS study_variable_count
                 FROM public.view_variables
-                GROUP BY view_variables.study_id) v2 ON ((s.study_id = v2.study_id)));
+                GROUP BY view_variables.study_id) v2 ON ((s.study_id = v2.study_id))
+    LEFT JOIN public.study st ON ((st.id = s.study_id));
 
 
 ALTER VIEW public.view_study_for_es OWNER TO canopy_admin;
